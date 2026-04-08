@@ -1,0 +1,213 @@
+import React from 'react';
+import { Camera, Shield, Plus, Trash2, Settings, UserPlus, Save, Building2, FileSignature, Brain } from 'lucide-react';
+import { Card } from './UIComponents';
+import { formatRUT } from '../constants';
+import { supabase } from '../supabase';
+
+export default function SettingsView({
+    themeMode, t, config, setConfigLocal, logoInputRef, handleLogoUpload,
+    userRole, saveToSupabase, notify, team, setTeam, newMember, setNewMember
+}) {
+    const inputClass = "w-full p-4 rounded-2xl bg-[#FDFBF7] border border-[#DFD2C4] outline-none font-bold text-[#312923] focus:border-[#5B6651] transition-colors shadow-sm";
+    const labelClass = "text-[10px] font-black uppercase tracking-widest text-[#9A8F84] ml-2 mb-2 block";
+
+    return (
+        <div className="space-y-8 animate-in fade-in h-full flex flex-col pb-10">
+            
+            {/* --- ENCABEZADO BOUTIQUE PSICOLOGÍA --- */}
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 pb-6 border-b border-[#DFD2C4]/50 shrink-0">
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <Brain size={14} className="text-[#A3968B]"/>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#9A8F84]">Gestión de Centro Psicológico</p>
+                    </div>
+                    <h2 className="text-4xl font-black text-[#312923] tracking-tighter">Ajustes del Centro</h2>
+                </div>
+                {userRole === 'admin' && (
+                    <button 
+                        onClick={()=>{saveToSupabase('settings', 'general', config); notify("Configuración actualizada correctamente");}}
+                        className="flex items-center gap-2 px-8 py-3.5 bg-[#312923] text-white font-black text-[11px] uppercase tracking-widest rounded-2xl hover:bg-[#1a1512] transition-all shadow-lg shadow-[#312923]/20 hover:-translate-y-0.5"
+                    >
+                        <Save size={16}/> Guardar Ajustes
+                    </button>
+                )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-8">
+                {userRole === 'admin' ? (
+                    <>
+                        {/* --- IDENTIDAD VISUAL --- */}
+                        <Card className="rounded-[2.5rem] border border-[#DFD2C4]/60 bg-white p-8 shadow-sm">
+                            <h3 className="font-black text-xl text-[#312923] mb-6 flex items-center gap-2">
+                                <Camera className="text-[#CBAAA2]"/> Identidad del Centro
+                            </h3>
+                            
+                            <div 
+                                onClick={()=>logoInputRef.current.click()} 
+                                className="w-full max-w-md p-8 border-2 border-dashed border-[#DFD2C4] bg-[#FDFBF7] rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:bg-white hover:border-[#A3968B] transition-all shadow-inner group"
+                            >
+                                <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload}/>
+                                {config.logo ? (
+                                    <div className="flex flex-col items-center gap-4">
+                                        <img src={config.logo} className="h-24 object-contain drop-shadow-sm transition-transform group-hover:scale-105" alt="Logo Centro"/>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#A3968B] bg-white px-4 py-1.5 rounded-full border border-[#DFD2C4]/50 shadow-sm">Cambiar Logo</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                                        <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-[#A3968B] border border-[#DFD2C4] group-hover:scale-110 transition-transform">
+                                            <Brain size={28}/>
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#5B6651]">Click para subir logo</span>
+                                        <p className="text-xs font-bold text-[#9A8F84]">ShiningCloud | Psychology Brand</p>
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+
+                        {/* --- DATOS GENERALES --- */}
+                        <Card className="rounded-[2.5rem] border border-[#DFD2C4]/60 bg-white p-8 shadow-sm">
+                            <h3 className="font-black text-xl text-[#312923] mb-6 flex items-center gap-2 border-b border-[#DFD2C4]/50 pb-4">
+                                <Building2 className="text-[#A3968B]"/> Datos del Profesional o Centro
+                            </h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className={labelClass}>Nombre Centro / Psicólogo/a</label>
+                                    <input className={inputClass} placeholder="Ej: Centro de Terapia Cloud" value={config.name || ''} onChange={e=>setConfigLocal({...config, name:e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>RUT Profesional / Centro</label>
+                                    <input className={inputClass} placeholder="12.345.678-9" value={config.rut || ''} onChange={e=>setConfigLocal({...config, rut: formatRUT(e.target.value)})} />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Especialidad o Enfoque</label>
+                                    <input className={inputClass} placeholder="Ej: Terapia Cognitivo-Conductual" value={config.specialty || ''} onChange={e=>setConfigLocal({...config, specialty:e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Teléfono de Contacto</label>
+                                    <input className={inputClass} placeholder="+56 9 1234 5678" value={config.phone || ''} onChange={e=>setConfigLocal({...config, phone:e.target.value})} />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className={labelClass}>Dirección de Consulta</label>
+                                    <input className={inputClass} placeholder="Av. Providencia 123, Oficina 201" value={config.address || ''} onChange={e=>setConfigLocal({...config, address:e.target.value})} />
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* --- INFORMACIÓN LEGAL SALUD MENTAL --- */}
+                        <Card className="rounded-[2.5rem] border border-[#DFD2C4]/60 bg-[#FDFBF7] p-8 shadow-inner">
+                            <div className="flex justify-between items-center mb-6 border-b border-[#DFD2C4]/50 pb-4">
+                                <h3 className="font-black text-xl text-[#312923] flex items-center gap-2">
+                                    <FileSignature className="text-[#5B6651]"/> Registro Nacional de Prestadores
+                                </h3>
+                                <span className="text-[9px] font-black uppercase tracking-widest bg-white border border-[#DFD2C4] px-3 py-1 rounded-full text-[#9A8F84]">Requisito SIS</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                <div>
+                                    <label className={labelClass}>N° Registro SIS (Superintendencia)</label>
+                                    <input className={`${inputClass} bg-white`} placeholder="N° de Registro" value={config.rnpi || ''} onChange={e=>setConfigLocal({...config, rnpi:e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Universidad de Egreso / Título</label>
+                                    <input className={`${inputClass} bg-white`} placeholder="Ej: Universidad Católica de Chile" value={config.university || ''} onChange={e=>setConfigLocal({...config, university:e.target.value})} />
+                                </div>
+                            </div>
+                            <p className="text-xs text-[#A3968B] font-bold">
+                                * El RUT y el Registro de la Superintendencia de Salud (SIS) son fundamentales para la emisión de informes psicológicos y boletas de reembolso.
+                            </p>
+                        </Card>
+
+                        {/* --- GESTIÓN DE EQUIPO --- */}
+                        <Card className="rounded-[2.5rem] border border-[#DFD2C4]/60 bg-white p-8 shadow-sm">
+                            <h3 className="font-black text-xl text-[#312923] mb-6 flex items-center gap-2 border-b border-[#DFD2C4]/50 pb-4">
+                                <Shield className="text-[#CBAAA2]"/> Equipo de Especialistas y Accesos
+                            </h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 bg-[#FDFBF7] p-5 rounded-3xl border border-[#DFD2C4]/50 mb-8 shadow-inner">
+                                <div className="md:col-span-4 space-y-1">
+                                    <label className={labelClass}>Nombre Profesional</label>
+                                    <input className="w-full p-3.5 rounded-xl bg-white border border-[#DFD2C4] outline-none font-bold text-sm text-[#312923] focus:border-[#5B6651] transition-colors" placeholder="Nombre completo" value={newMember.name} onChange={e=>setNewMember({...newMember, name:e.target.value})}/>
+                                </div>
+                                <div className="md:col-span-4 space-y-1">
+                                    <label className={labelClass}>Email Profesional</label>
+                                    <input className="w-full p-3.5 rounded-xl bg-white border border-[#DFD2C4] outline-none font-bold text-sm text-[#312923] focus:border-[#5B6651] transition-colors" placeholder="profesional@centro.com" value={newMember.email} onChange={e=>setNewMember({...newMember, email:e.target.value})}/>
+                                </div>
+                                <div className="md:col-span-2 space-y-1">
+                                    <label className={labelClass}>Rol</label>
+                                    <select className="w-full p-3.5 rounded-xl bg-white border border-[#DFD2C4] outline-none font-bold text-sm text-[#312923] focus:border-[#5B6651] transition-colors appearance-none cursor-pointer" value={newMember.role} onChange={e=>setNewMember({...newMember, role:e.target.value})}>
+                                        <option value="admin">Administrador</option>
+                                        <option value="psychologist">Psicólogo/a</option>
+                                        <option value="secretary">Secretaría / Recepción</option>
+                                    </select>
+                                </div>
+                                <div className="md:col-span-2 flex items-end">
+                                    <button 
+                                        className="w-full h-[50px] bg-[#5B6651] hover:bg-[#4a5442] text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-[#5B6651]/20 flex items-center justify-center gap-2"
+                                        onClick={async()=>{ 
+                                            if(newMember.email && newMember.name){ 
+                                                const id=Date.now().toString(); 
+                                                const u={...newMember, id}; 
+                                                setTeam([...team, u]); 
+                                                await saveToSupabase('team', id, u); 
+                                                setNewMember({name:'', email:'', role:'psychologist'}); 
+                                                notify("Profesional registrado con éxito"); 
+                                            } 
+                                        }}
+                                    >
+                                        <UserPlus size={16}/> Añadir
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <label className={labelClass}>Usuarios del Sistema</label>
+                                {team.map(member => (
+                                    <div key={member.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-5 bg-white rounded-2xl border border-[#DFD2C4]/40 hover:border-[#A3968B] transition-all shadow-sm group">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-[#FDFBF7] border border-[#DFD2C4] flex items-center justify-center font-black text-[#A3968B]">
+                                                {member.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-[#312923]">{member.name}</p>
+                                                <p className="text-[10px] font-bold text-[#9A8F84] mt-0.5">{member.email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+                                            <span className={`text-[9px] uppercase font-black px-3 py-1.5 rounded-full border tracking-widest ${
+                                                member.role === 'admin' ? 'bg-[#5B6651]/10 text-[#5B6651] border-[#5B6651]/20' : 
+                                                member.role === 'psychologist' ? 'bg-[#A3968B]/10 text-[#A3968B] border-[#A3968B]/20' : 
+                                                'bg-[#CBAAA2]/10 text-[#CBAAA2] border-[#CBAAA2]/20'
+                                            }`}>
+                                                {member.role === 'admin' ? 'Administrador' : member.role === 'psychologist' ? 'Psicólogo/a' : 'Secretaría'}
+                                            </span>
+                                            <button 
+                                                onClick={async()=>{ 
+                                                    if(window.confirm(`¿Remover a ${member.name} del equipo?`)){
+                                                        const f=team.filter(t=>t.id!==member.id); 
+                                                        setTeam(f); 
+                                                        await supabase.from('team').delete().eq('id', member.id); 
+                                                        notify("Acceso revocado"); 
+                                                    }
+                                                }} 
+                                                className="p-2 text-[#DFD2C4] hover:bg-red-50 hover:text-red-500 rounded-lg transition-all"
+                                            >
+                                                <Trash2 size={18}/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                    </>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 opacity-50">
+                        <Shield size={48} className="text-[#A3968B] mb-4"/>
+                        <h3 className="font-black text-xl text-[#312923]">Acceso Privado</h3>
+                        <p className="text-sm font-bold mt-2 text-[#9A8F84]">Solo el administrador del centro puede realizar cambios.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
