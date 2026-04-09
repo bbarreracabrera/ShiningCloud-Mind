@@ -9,7 +9,6 @@ export default function PatientImagesTab({
 }) {
     const patient = getPatient(selectedPatientId);
     
-    // Categorías de archivos adaptadas a Psicología
     const folderTabs = [
         { id: 'Informes Médicos', icon: FileText },
         { id: 'Tests y Escalas', icon: FileBarChart },
@@ -18,14 +17,11 @@ export default function PatientImagesTab({
         { id: 'Otros', icon: FolderOpen }
     ];
 
-    // Si el usuario viene de un "activeFolder" antiguo (ej. Radiografías), lo mandamos a "Otros"
     const currentFolder = folderTabs.find(f => f.id === activeFolder) ? activeFolder : 'Otros';
     const currentImages = patient.images?.filter(img => (img.folder || 'Otros') === currentFolder) || [];
 
     return (
         <div className="space-y-6 animate-in fade-in h-full flex flex-col max-w-6xl mx-auto pb-10">
-            
-            {/* --- ENCABEZADO --- */}
             <div className="border-b border-[#DFD2C4]/50 pb-4">
                 <h2 className="text-2xl font-black text-[#312923] tracking-tight flex items-center gap-3">
                     <div className="p-2.5 bg-[#9A8F84]/10 text-[#9A8F84] rounded-xl">
@@ -38,8 +34,7 @@ export default function PatientImagesTab({
                 </p>
             </div>
 
-            {/* --- 1. PESTAÑAS DE CARPETAS --- */}
-            <div className="flex overflow-x-auto gap-3 pb-2 custom-scrollbar">
+            <div className="flex overflow-x-auto gap-3 pb-2 custom-scrollbar hide-scrollbar">
                 {folderTabs.map(folder => {
                     const isActive = currentFolder === folder.id;
                     const fileCount = patient.images?.filter(img => (img.folder || 'Otros') === folder.id).length || 0;
@@ -64,11 +59,8 @@ export default function PatientImagesTab({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
-                
-                {/* --- 2. ZONA DE SUBIDA --- */}
                 <div className="lg:col-span-1 flex flex-col gap-4">
                     <div className="relative group w-full h-48 lg:h-full min-h-[200px] border-2 border-dashed border-[#DFD2C4] hover:border-[#5B6651] bg-[#FDFBF7] hover:bg-[#5B6651]/5 rounded-[2rem] flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden">
-                        
                        <input 
                          type="file" 
                          className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" 
@@ -76,7 +68,6 @@ export default function PatientImagesTab({
                          onChange={(e) => {
                              const file = e.target.files[0];
                              if (file) {
-                                // Se asume que handleImageUpload recibe el archivo y usa currentFolder
                                 handleImageUpload(file); 
                              }
                            e.target.value = ''; 
@@ -106,7 +97,6 @@ export default function PatientImagesTab({
                     </div>
                 </div>
 
-                {/* --- 3. CUADRÍCULA DE FOTOS / ARCHIVOS --- */}
                 <div className="lg:col-span-3 bg-white border border-[#DFD2C4]/40 rounded-[2rem] p-6 shadow-sm overflow-y-auto custom-scrollbar h-[500px] lg:h-full">
                     {currentImages.length === 0 ? (
                         <div className="h-full w-full flex flex-col items-center justify-center opacity-40">
@@ -120,7 +110,6 @@ export default function PatientImagesTab({
                                 <div key={img.id} className="relative group rounded-3xl overflow-hidden aspect-square border border-[#DFD2C4]/60 bg-[#FDFBF7] shadow-sm hover:shadow-md transition-shadow">
                                     
                                     <div className="w-full h-full object-cover">
-                                        {/* Componente que abre la imagen/pdf en modal grande */}
                                         <PrivateImage img={img} onClick={setSelectedImg} />
                                     </div>
                                     
@@ -132,20 +121,18 @@ export default function PatientImagesTab({
                                     
                                     <button 
                                         onClick={async () => { 
-                                            if(window.confirm("Alerta: ¿Estás seguro que deseas eliminar este documento confidencial del historial del consultante?")) {
+                                            if(window.confirm("Alerta: ¿Deseas remover este documento del registro visual del paciente? (El archivo permanecerá en los servidores por 30 días por respaldo legal).")) {
                                                 const f = patient.images.filter(i => i.id !== img.id); 
                                                 await savePatientData(selectedPatientId, {...patient, images: f}); 
                                                 
-                                                const filePath = img.path || img.url;
-                                                if (filePath && !filePath.startsWith('http')) {
-                                                    // Apuntando al nuevo bucket de psicología
-                                                    await supabase.storage.from('psychology-files').remove([filePath]);
-                                                }
-                                                if(typeof notify === 'function') notify("Documento eliminado correctamente"); 
+                                                // BORRADO LÓGICO: Ya no llamamos a supabase.storage.remove() aquí.
+                                                // Simplemente lo quitamos del array del paciente.
+                                                
+                                                if(typeof notify === 'function') notify("Documento removido de la ficha"); 
                                             }
                                         }} 
                                         className="absolute top-3 right-3 p-2.5 bg-white hover:bg-red-50 hover:text-red-500 border border-transparent hover:border-red-200 shadow-md rounded-xl text-[#9A8F84] opacity-0 group-hover:opacity-100 transition-all z-20"
-                                        title="Eliminar documento"
+                                        title="Remover documento"
                                     >
                                         <Trash2 size={16}/>
                                     </button>
@@ -154,7 +141,6 @@ export default function PatientImagesTab({
                         </div>
                     )}
                 </div>
-
             </div>
         </div>
     );

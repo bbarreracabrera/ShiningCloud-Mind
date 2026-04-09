@@ -1,151 +1,151 @@
-import React from 'react';
-import { FileSignature, Printer, FileText, CheckCircle2, FileX, PenTool, Scale } from 'lucide-react';
-import { SignaturePad } from './UIComponents';
-import { CONSENT_TEMPLATES } from '../constants';
+import React, { useState } from 'react';
+import { FileSignature, Download, Trash2, CheckCircle, FileText, AlertCircle } from 'lucide-react';
 
 export default function PatientConsentTab({
     getPatient, selectedPatientId, savePatientData,
-    modal, setModal, consentTemplate, setConsentTemplate,
-    consentText, setConsentText, generatePDF
+    modal, setModal, generatePDF
 }) {
     const patient = getPatient(selectedPatientId);
-    const signedConsents = patient.consents || [];
+    const consents = patient.consents || [];
+
+    // Estados locales (Antes estaban en App.jsx)
+    const [consentTemplate, setConsentTemplate] = useState('psicoterapia_adultos');
+    const [consentText, setConsentText] = useState('');
+
+    const templates = {
+        psicoterapia_adultos: "Consentimiento Informado para Psicoterapia (Adultos):\n\nPor el presente documento, consiento libre y voluntariamente a participar en un proceso de psicoterapia con [Nombre del Terapeuta]. Entiendo que el proceso implica hablar de aspectos personales y emocionales que pueden generar incomodidad temporal. Fui informado de las tarifas, duración de sesiones y políticas de cancelación. Comprendo que la confidencialidad es un pilar ético y legal, con las excepciones legales correspondientes (riesgo vital para sí mismo o terceros).",
+        evaluacion_psicodiagnostica: "Consentimiento para Evaluación Psicodiagnóstica:\n\nAutorizo la aplicación de pruebas, test psicológicos y entrevistas clínicas para fines diagnósticos. Entiendo que los resultados serán manejados con estricta confidencialidad y que tengo derecho a recibir una sesión de devolución y un informe escrito con los resultados.",
+        psicoterapia_infantil: "Consentimiento Informado para Psicoterapia Infanto-Juvenil:\n\nComo madre/padre o tutor legal, autorizo el proceso psicoterapéutico de mi hijo/a. Entiendo que la terapia requiere mi participación activa y reuniones periódicas con el terapeuta. Se respetará la privacidad del menor, informándome solo de situaciones de riesgo inminente.",
+        terapia_pareja: "Consentimiento para Terapia de Pareja:\n\nAmbas partes consienten a participar en terapia conjunta. Entendemos que el paciente es 'la relación' y que el terapeuta mantiene una postura de neutralidad. Los secretos individuales no están protegidos si interfieren con el proceso terapéutico conjunto."
+    };
 
     return (
-        <div className="space-y-8 animate-in fade-in max-w-4xl mx-auto pb-10">
+        <div className="space-y-8 animate-in fade-in max-w-5xl mx-auto pb-10">
             
             {/* --- ENCABEZADO --- */}
             <div className="border-b border-[#DFD2C4]/50 pb-4">
                 <h2 className="text-2xl font-black text-[#312923] tracking-tight flex items-center gap-3">
-                    <div className="p-2.5 bg-[#5B6651]/10 text-[#5B6651] rounded-xl">
-                        <Scale size={22} />
+                    <div className="p-2.5 bg-[#312923]/10 text-[#312923] rounded-xl">
+                        <FileSignature size={22} />
                     </div>
                     Acuerdos y Consentimientos
                 </h2>
                 <p className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest mt-2 ml-1">
-                    Encuadre terapéutico y respaldo legal
+                    Documentos éticos y legales del encuadre terapéutico
                 </p>
             </div>
 
-            {/* --- ÁREA PRINCIPAL --- */}
-            {modal === 'sign' ? (
-                // 1. MODO LECTURA Y FIRMA (Documento Abierto)
-                <div className="space-y-6 animate-in slide-in-from-bottom-2">
-                    <div className="flex justify-between items-center">
-                        <h3 className="font-black text-xl text-[#312923]">{CONSENT_TEMPLATES[consentTemplate]?.title}</h3>
-                        <button onClick={() => setModal(null)} className="px-4 py-2 bg-[#FDFBF7] text-[#9A8F84] hover:text-[#312923] border border-[#DFD2C4]/50 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors">
-                            Cancelar
+            {/* --- PANEL DE REDACCIÓN DE NUEVO CONSENTIMIENTO --- */}
+            <div className="bg-white border border-[#DFD2C4]/60 rounded-[2rem] p-6 shadow-sm">
+                <h3 className="text-[10px] font-black uppercase text-[#5B6651] flex items-center gap-2 mb-6">
+                    <FileText size={14} className="text-[#A3968B]"/> Redactar Nuevo Documento
+                </h3>
+                
+                <div className="space-y-5">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest ml-1">Plantilla Base</label>
+                        <select 
+                            className="w-full p-4 rounded-2xl border border-[#DFD2C4] bg-[#FDFBF7] text-sm font-bold text-[#312923] outline-none focus:border-[#5B6651] transition-all shadow-sm"
+                            value={consentTemplate}
+                            onChange={(e) => {
+                                setConsentTemplate(e.target.value);
+                                setConsentText(templates[e.target.value]);
+                            }}
+                        >
+                            <option value="psicoterapia_adultos">Psicoterapia Individual (Adultos)</option>
+                            <option value="evaluacion_psicodiagnostica">Evaluación Psicodiagnóstica</option>
+                            <option value="psicoterapia_infantil">Psicoterapia Infanto-Juvenil (Padres)</option>
+                            <option value="terapia_pareja">Terapia de Pareja</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-2 relative">
+                        <label className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest ml-1">Texto del Acuerdo (Editable)</label>
+                        <textarea 
+                            className="w-full min-h-[180px] p-5 rounded-2xl border border-[#DFD2C4] bg-[#FDFBF7] text-sm text-[#312923] font-medium leading-relaxed outline-none focus:border-[#5B6651] transition-all custom-scrollbar resize-none shadow-inner"
+                            value={consentText}
+                            onChange={(e) => setConsentText(e.target.value)}
+                        />
+                        <div className="absolute top-8 right-3 flex items-center gap-1.5 text-[9px] font-black text-[#5B6651] uppercase tracking-widest bg-[#5B6651]/5 px-2 py-1 rounded-lg">
+                            <AlertCircle size={10} /> Editable
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                        <button 
+                            className="bg-[#312923] text-white px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:-translate-y-0.5 transition-all shadow-md hover:shadow-lg"
+                            onClick={() => {
+                                const newDoc = { id: Date.now(), type: consentTemplate, text: consentText, date: new Date().toLocaleDateString('es-CL'), signed: false };
+                                savePatientData(selectedPatientId, { ...patient, consents: [newDoc, ...consents] });
+                                setConsentText(''); 
+                            }}
+                            disabled={!consentText.trim()}
+                        >
+                            <CheckCircle size={16}/> Guardar y Habilitar Firma
                         </button>
                     </div>
-
-                    {/* El Papel (Texto del Consentimiento) */}
-                    <div className="bg-[#FDFBF7] border border-[#DFD2C4]/60 rounded-3xl p-6 shadow-inner focus-within:border-[#5B6651]/30 transition-colors">
-                        <textarea 
-                            className="w-full h-64 bg-transparent text-sm leading-relaxed outline-none resize-none text-[#312923] font-medium custom-scrollbar pr-4" 
-                            value={consentText} 
-                            onChange={(e) => setConsentText(e.target.value)} 
-                            placeholder="Redacte o ajuste el encuadre aquí..."
-                        />
-                    </div>
-
-                    {/* El Pad de Firma */}
-                    <div className="bg-white border border-[#DFD2C4]/60 rounded-3xl p-6 shadow-sm">
-                        <div className="mb-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#5B6651] flex items-center gap-2">
-                                <PenTool size={14}/> Firma del Consultante / Apoderado
-                            </h4>
-                            <p className="text-[10px] text-[#9A8F84] font-medium mt-1">Por favor, firme dentro del recuadro utilizando el cursor o su dedo.</p>
-                        </div>
-                        
-                        <SignaturePad 
-                            onSave={(sig) => { 
-                                savePatientData(selectedPatientId, {
-                                    ...patient, 
-                                    consents: [{
-                                        id: Date.now(), 
-                                        type: CONSENT_TEMPLATES[consentTemplate].title, 
-                                        text: consentText, 
-                                        signature: sig,
-                                        date: new Date().toLocaleDateString('es-CL')
-                                    }, ...signedConsents]
-                                }); 
-                                setModal(null); 
-                            }} 
-                            onCancel={() => setModal(null)}
-                        />
-                    </div>
                 </div>
-            ) : (
-                // 2. MODO SELECCIÓN DE PLANTILLA
-                <div className="space-y-6">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-[#9A8F84] border-b border-[#DFD2C4]/50 pb-2">
-                        Plantillas de Encuadre Disponibles
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                        {Object.entries(CONSENT_TEMPLATES).map(([key, tpl]) => (
-                            <button 
-                                key={key} 
-                                onClick={() => { setConsentTemplate(key); setConsentText(tpl.text); setModal('sign'); }} 
-                                className="group flex flex-col items-center justify-center p-8 bg-white border border-[#DFD2C4]/60 hover:border-[#5B6651] rounded-3xl transition-all shadow-sm hover:shadow-md text-center"
-                            >
-                                <div className="w-14 h-14 bg-[#FDFBF7] rounded-2xl flex items-center justify-center group-hover:bg-[#5B6651]/10 group-hover:scale-110 transition-all duration-300 border border-[#DFD2C4]/50 mb-4">
-                                    <FileText className="text-[#9A8F84] group-hover:text-[#5B6651] transition-colors" size={24}/>
+            </div>
+
+            {/* --- LISTA DE DOCUMENTOS --- */}
+            <div className="space-y-4 pt-4">
+                <h3 className="text-[10px] font-black uppercase text-[#9A8F84] tracking-widest ml-1">Documentos del Consultante</h3>
+                
+                {consents.length === 0 ? (
+                    <div className="text-center py-10 bg-[#FDFBF7] border border-dashed border-[#DFD2C4] rounded-3xl">
+                        <p className="text-xs font-bold text-[#9A8F84] uppercase tracking-widest">No hay documentos generados</p>
+                    </div>
+                ) : (
+                    <div className="grid gap-3">
+                        {consents.map(doc => (
+                            <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white border border-[#DFD2C4]/60 rounded-2xl hover:shadow-sm hover:border-[#DFD2C4] transition-all group gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${doc.signed ? 'bg-[#5B6651]/10 text-[#5B6651]' : 'bg-[#CBAAA2]/10 text-[#CBAAA2]'}`}>
+                                        <FileSignature size={20}/>
+                                    </div>
+                                    <div>
+                                        <p className="font-black text-[#312923] text-sm uppercase tracking-tight">
+                                            {doc.type.replace(/_/g, ' ')}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest">{doc.date}</span>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${doc.signed ? 'border-[#5B6651]/30 text-[#5B6651] bg-[#5B6651]/5' : 'border-[#CBAAA2]/30 text-[#CBAAA2] bg-[#CBAAA2]/5'}`}>
+                                                {doc.signed ? '✓ Firmado' : 'Pendiente'}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <span className="font-black text-sm text-[#312923] group-hover:text-[#5B6651] transition-colors line-clamp-2">
-                                    {tpl.title}
-                                </span>
-                                <span className="text-[9px] font-bold text-[#9A8F84] uppercase tracking-widest mt-2">Crear Documento</span>
-                            </button>
+                                <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    {!doc.signed && (
+                                        <button 
+                                            className="px-4 py-2 bg-[#5B6651] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-opacity-90"
+                                            onClick={() => {
+                                                const updated = consents.map(c => c.id === doc.id ? { ...c, signed: true } : c);
+                                                savePatientData(selectedPatientId, { ...patient, consents: updated });
+                                            }}
+                                        >
+                                            Marcar Firmado
+                                        </button>
+                                    )}
+                                    <button onClick={() => generatePDF('consent', doc)} className="p-2.5 rounded-xl bg-[#FDFBF7] text-[#9A8F84] border border-[#DFD2C4]/50 hover:bg-white hover:text-[#312923] hover:border-[#312923]/30 transition-all">
+                                        <Download size={16}/>
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if(window.confirm("¿Seguro de eliminar este documento?")) {
+                                                savePatientData(selectedPatientId, { ...patient, consents: consents.filter(c => c.id !== doc.id) });
+                                            }
+                                        }} 
+                                        className="p-2.5 rounded-xl bg-[#FDFBF7] text-[#9A8F84] border border-[#DFD2C4]/50 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all"
+                                    >
+                                        <Trash2 size={16}/>
+                                    </button>
+                                </div>
+                            </div>
                         ))}
                     </div>
-                </div>
-            )}
-            
-            {/* --- ARCHIVO DE CONSENTIMIENTOS FIRMADOS --- */}
-            {modal !== 'sign' && (
-                <div className="pt-8">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-[#9A8F84] border-b border-[#DFD2C4]/50 pb-2 mb-6 flex items-center gap-2">
-                        <CheckCircle2 size={14}/> Archivo Legal (Firmados)
-                    </h3>
-                    
-                    {signedConsents.length === 0 ? (
-                        <div className="text-center py-12 bg-[#FDFBF7] border-2 border-dashed border-[#DFD2C4] rounded-3xl">
-                            <FileX className="mx-auto text-[#DFD2C4] mb-3" size={32}/>
-                            <p className="text-sm font-bold text-[#9A8F84]">No hay documentos firmados para este paciente.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {signedConsents.map(c => (
-                                <div key={c.id} className="bg-white p-5 rounded-3xl border border-[#DFD2C4]/60 shadow-sm flex items-center justify-between group hover:border-[#CBAAA2] transition-colors">
-                                    
-                                    <div className="flex items-center gap-4 flex-1 overflow-hidden">
-                                        <div className="p-3 bg-[#FDFBF7] rounded-xl text-[#9A8F84]">
-                                            <FileSignature size={20}/>
-                                        </div>
-                                        <div className="overflow-hidden">
-                                            <p className="font-black text-sm text-[#312923] truncate">{c.type}</p>
-                                            <p className="text-[10px] font-bold text-[#9A8F84] mt-1">{c.date || new Date(c.id).toLocaleDateString('es-CL')}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-3 pl-4 border-l border-[#DFD2C4]/40 ml-4 shrink-0">
-                                        <div className="bg-[#FDFBF7] p-1.5 rounded-lg border border-[#DFD2C4]/50 h-10 w-16 flex items-center justify-center">
-                                            <img src={c.signature} className="max-h-full max-w-full object-contain opacity-80 mix-blend-multiply" alt="Firma"/>
-                                        </div>
-                                        <button 
-                                            onClick={() => generatePDF('consent', c)} 
-                                            className="p-3 bg-[#FDFBF7] border border-[#DFD2C4] text-[#6B615A] rounded-xl hover:bg-[#CBAAA2] hover:text-white hover:border-[#CBAAA2] transition-all shadow-sm"
-                                            title="Generar PDF"
-                                        >
-                                            <Printer size={16}/>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

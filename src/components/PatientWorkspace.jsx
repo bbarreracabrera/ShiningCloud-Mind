@@ -1,11 +1,10 @@
 import React from 'react';
 import { 
     ArrowLeft, AlertTriangle, User, FileQuestion, Brain, 
-    Network, FileText, FileSignature, FolderOpen,
-    Mic, MicOff, Sparkles
+    Network, FileText, FileSignature, FolderOpen
 } from 'lucide-react';
 
-// --- IMPORTACIÓN DE PESTAÑAS (Adaptadas para Psicología) ---
+// --- IMPORTACIÓN DE PESTAÑAS ---
 import PatientPersonalTab from './PatientPersonalTab';
 import PatientAnamnesisTab from './PatientAnamnesisTab';
 import MentalExamTab from './MentalExamTab';   
@@ -18,17 +17,13 @@ export default function PatientWorkspace({
     selectedPatientId, setSelectedPatientId, patientTab, setPatientTab, 
     userRole, themeMode, session, clinicOwner, patientRecords, setActiveTab, 
     activeFormType, setActiveFormType, viewingForm, setViewingForm,
-    mentalExamData, setMentalExamData, familyMapData, setFamilyMapData,
-    catalog, sessionData, setSessionData,
-    isListening, voiceStatus, toggleVoice,
-    newEvolution, setNewEvolution, activeFolder, setActiveFolder, uploading, 
-    consentTemplate, setConsentTemplate, consentText, setConsentText, modal,
-    getPatient, savePatientData, setPatientRecords, setModal, setQuoteItems,
+    activeFolder, setActiveFolder, uploading, 
+    modal, setModal, getPatient, savePatientData, 
     logAction, handleGeneratePDF, handleImageUpload, notify, sendWhatsApp, setSelectedImg
 }) {
     const p = getPatient(selectedPatientId);
 
-    // Las 7 Pestañas
+    // Las 7 Pestañas Clínicas
     const tabButtons = [
         {id:'personal', label:'Datos', icon: User}, 
         {id:'anamnesis', label:'Anamnesis', icon: FileQuestion, restricted: true}, 
@@ -40,7 +35,7 @@ export default function PatientWorkspace({
     ];
 
     return (
-        <div className="space-y-6 animate-in slide-in-from-right pb-10">
+        <div className="space-y-6 animate-in slide-in-from-right pb-10 max-w-7xl mx-auto">
             <div className="flex flex-col gap-3 border-b border-[#DFD2C4]/50 pb-5">
                 <button 
                     onClick={() => setSelectedPatientId(null)} 
@@ -53,6 +48,7 @@ export default function PatientWorkspace({
                 </div>
             </div>
 
+            {/* --- ALERTAS CLÍNICAS --- */}
             {(() => {
                 const criticalConditions = ['Riesgo Suicida', 'Epilepsia', 'Psicosis', 'Alergias graves', 'Trastorno Bipolar', 'Cardiopatía'];
                 const activeAlerts = Object.entries(p.anamnesis?.conditions || {}).filter(([k, v]) => v && criticalConditions.includes(k)).map(([k]) => k);
@@ -71,7 +67,8 @@ export default function PatientWorkspace({
                 return null;
             })()}
 
-            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar border-b border-[#DFD2C4]/30">
+            {/* --- NAVEGACIÓN DE PESTAÑAS --- */}
+            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar border-b border-[#DFD2C4]/30 hide-scrollbar">
                 {tabButtons.map(b => {
                     if (userRole === 'secretary' && b.restricted) return null;
                     const isActive = patientTab === b.id;
@@ -89,33 +86,23 @@ export default function PatientWorkspace({
                 })}
             </div>
 
+            {/* --- CONTENEDOR DE LA PESTAÑA ACTIVA --- */}
             <div className="bg-white rounded-b-[2rem] rounded-tr-[2rem] p-6 sm:p-8 border border-[#DFD2C4]/40 shadow-sm" style={{ boxShadow: '0 10px 25px -5px rgba(91, 102, 81, 0.05)', marginTop: '-1px' }}>
                 
-                {(patientTab === 'mental_exam' || patientTab === 'evolution') && (
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-[#FDFBF7] to-white border border-[#DFD2C4]/60 p-4 rounded-3xl shadow-sm gap-4 mb-8 animate-in fade-in">
-                        <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-2xl transition-all ${isListening ? 'bg-red-500 text-white shadow-md shadow-red-500/20' : 'bg-[#5B6651]/10 text-[#5B6651]'}`}><Sparkles size={24} className={isListening ? 'animate-spin-slow' : ''} /></div>
-                            <div>
-                                <h3 className="text-sm font-black text-[#312923] uppercase tracking-widest flex items-center gap-2">IA Terapéutica<span className="bg-[#CBAAA2]/20 text-[#CBAAA2] px-2 py-0.5 rounded-full text-[9px]">BETA</span></h3>
-                                <p className="text-[11px] font-bold text-[#9A8F84] mt-1">{isListening ? "IA Activa. Dicta tus notas..." : "Haz clic en el micrófono para dictar."}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 w-full md:w-auto justify-end">
-                            {voiceStatus && <span className="text-[11px] font-bold text-[#5B6651] animate-pulse whitespace-nowrap hidden sm:block">{voiceStatus}</span>}
-                            <button onClick={toggleVoice} className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-md shrink-0 ${isListening ? 'bg-red-500 text-white hover:bg-red-600 shadow-red-500/30 animate-pulse' : 'bg-[#312923] text-white hover:bg-[#1a1512] hover:-translate-y-0.5 shadow-[#312923]/20'}`}>
-                                {isListening ? <MicOff size={16}/> : <Mic size={16}/>} {isListening ? 'Detener' : 'Dictar'}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
                 {patientTab === 'personal' && <PatientPersonalTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} sendWhatsApp={sendWhatsApp} />}
+                
                 {patientTab === 'anamnesis' && <PatientAnamnesisTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} session={session} notify={notify} activeFormType={activeFormType} setActiveFormType={setActiveFormType} viewingForm={viewingForm} setViewingForm={setViewingForm} />}
+                
                 {patientTab === 'mental_exam' && <MentalExamTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} notify={notify} />}
+                
                 {patientTab === 'family_map' && <FamilyMapTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} notify={notify} />}              
-                {patientTab === 'evolution' && <PatientEvolutionTab newEvolution={newEvolution} setNewEvolution={setNewEvolution} isListening={isListening} toggleVoice={toggleVoice} voiceStatus={voiceStatus} getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} session={session} logAction={logAction} />}
-                {patientTab === 'consent' && <PatientConsentTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} modal={modal} setModal={setModal} consentTemplate={consentTemplate} setConsentTemplate={setConsentTemplate} consentText={consentText} setConsentText={setConsentText} generatePDF={handleGeneratePDF} />}
+                
+                {patientTab === 'evolution' && <PatientEvolutionTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} session={session} logAction={logAction} />}
+                
+                {patientTab === 'consent' && <PatientConsentTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} modal={modal} setModal={setModal} generatePDF={handleGeneratePDF} />}
+                
                 {patientTab === 'images' && <PatientImagesTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} activeFolder={activeFolder} setActiveFolder={setActiveFolder} handleImageUpload={handleImageUpload} uploading={uploading} setSelectedImg={setSelectedImg} notify={notify} />}
+                
             </div>
         </div>
     );
