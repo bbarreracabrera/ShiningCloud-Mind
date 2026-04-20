@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { supabase } from './supabase'; 
 import { getLocalDate, THEMES } from './constants';
@@ -109,6 +109,10 @@ export default function App() {
   // 💾 MOTOR DE GUARDADO EN BASE DE DATOS
   // ==========================================
   const saveToSupabase = async (tableName, id, dataObj) => {
+      if (!session?.user?.id) {
+          console.warn('saveToSupabase llamado sin sesión activa');
+          return false;
+      }
       try {
           let payload = {};
 
@@ -167,9 +171,14 @@ export default function App() {
       };
   }, [patientRecords]);
 
-  const savePatientData = useCallback(async (id, dataObj) => { 
-      setPatientRecords(prev => ({...prev, [id]: dataObj})); 
-      await saveToSupabase('patients', id, dataObj);
+  const saveTimer = useRef(null);
+
+  const savePatientData = useCallback(async (id, dataObj) => {
+      setPatientRecords(prev => ({...prev, [id]: dataObj}));
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(async () => {
+          await saveToSupabase('patients', id, dataObj);
+      }, 1500);
   }, []);
 
  // 👇 NUEVA VERSIÓN BLINDADA (SIN BUCKETS PÚBLICOS) 👇
