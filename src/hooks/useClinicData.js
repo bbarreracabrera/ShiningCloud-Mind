@@ -20,7 +20,14 @@ export const useClinicData = ({
                 if (patientsData && isMounted) {
                     const records = {};
                     patientsData.forEach(p => {
-                        records[p.id] = p.data || { id: p.id, personal: { legalName: p.name } };
+                        records[p.id] = {
+                            id: p.id,
+                            personal: p.personal || { legalName: p.name || '' },
+                            anamnesis: p.anamnesis || { motive: '', history: '', family: '' },
+                            clinical: p.clinical || { evolution: [], familyMap: {}, mentalExam: {} },
+                            consents: p.consents || [],
+                            images: p.images || []
+                        };
                     });
                     setPatientRecords(records);
                 }
@@ -28,13 +35,13 @@ export const useClinicData = ({
                 // 2. Descargar Citas (Agenda)
                 const { data: apptsData } = await supabase.from('appointments').select('*').eq('user_id', uid);
                 if (apptsData && isMounted) {
-                    setAppointments(apptsData.map(a => a.data || a));
+                    setAppointments(apptsData);
                 }
 
                 // 3. Descargar Finanzas y Pagos
                 const { data: finData } = await supabase.from('financial_records').select('*').eq('user_id', uid);
                 if (finData && isMounted) {
-                    setFinancialRecords(finData.map(f => f.data || f));
+                    setFinancialRecords(finData);
                 }
 
                 // 4. Descargar Configuración de la Consulta

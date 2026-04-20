@@ -183,7 +183,7 @@ export default function App() {
           const { error } = await supabase.from('patients').upsert(payloadWithUser, { onConflict: 'id' }).select();
           if (error) console.error('Error guardando paciente:', error);
           else console.log('Paciente guardado OK');
-      }, 1500);
+      }, 800);
   }, []);
 
  // 👇 NUEVA VERSIÓN BLINDADA (SIN BUCKETS PÚBLICOS) 👇

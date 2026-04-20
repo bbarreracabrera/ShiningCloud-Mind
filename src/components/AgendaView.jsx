@@ -80,7 +80,7 @@ export default function AgendaView({ appointments, onOpenModal }) {
                                 const d = new Date(currentDate); 
                                 d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1) + i); 
                                 const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                                const hourAppts = appointments.filter(a => a.date === dateStr && parseInt(a.time.split(':')[0]) === h); 
+                                const hourAppts = appointments.filter(a => a.date === dateStr && parseInt((a.time || '00:00').split(':')[0]) === h);
                                 
                                 return (
                                     <div key={i} className="border-b border-r border-[#DFD2C4]/30 relative h-[72px] hover:bg-[#FDFBF7] cursor-pointer" onClick={() => onOpenModal({patient_name: '', treatment: 'Psicoterapia Individual (Adultos)', date: dateStr, time: `${String(h).padStart(2, '0')}:00`, duration: 60, status: 'agendado'})}>
