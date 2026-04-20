@@ -136,16 +136,16 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
 };
 
 // --- PANTALLA DE AUTENTICACIÓN ---
-export const AuthScreen = ({ onBack }) => {
-    const [email, setEmail] = useState(''); 
-    const [password, setPassword] = useState(''); 
-    const [loading, setLoading] = useState(false); 
+export const AuthScreen = ({ onBack, initialSignUp = false }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState('');
-   
+
     const MP_SUBSCRIPTION_LINK = null;
     const urlParams = new URLSearchParams(window.location.search);
     const vieneDePago = urlParams.get('pago') === 'exitoso';
-    const [isSignUp, setIsSignUp] = useState(vieneDePago);
+    const [isSignUp, setIsSignUp] = useState(vieneDePago || initialSignUp);
   
     const handleAuth = async (e) => { 
         e.preventDefault(); 
@@ -268,6 +268,9 @@ export const AuthScreen = ({ onBack }) => {
   
                 {!vieneDePago && (
                     <div className="mt-6 text-center">
+                        <button type="button" onClick={() => { setIsSignUp(!isSignUp); setMsg(''); }} className="text-[11px] font-bold text-sage-green hover:text-soft-dark transition-colors underline-offset-4 hover:underline mb-4 block w-full text-center">
+                            {isSignUp ? '¿Ya tienes cuenta? Inicia sesión' : '¿Eres nuevo? Crear cuenta gratis'}
+                        </button>
                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
                             ¿Aún no tienes cuenta?
                         </p>

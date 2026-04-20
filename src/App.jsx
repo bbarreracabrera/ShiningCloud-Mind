@@ -29,6 +29,7 @@ import { useClinicData } from './hooks/useClinicData';
 export default function App() {
   const [session, setSession] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [themeMode, setThemeMode] = useState('light'); 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -257,9 +258,9 @@ export default function App() {
   // Si no es reserva y no hay sesión, mostramos Landing o Login
   if (!session) {
       return showLogin ? (
-          <AuthScreen onBack={() => setShowLogin(false)} />
+          <AuthScreen onBack={() => { setShowLogin(false); setShowRegister(false); }} initialSignUp={showRegister} />
       ) : (
-          <LandingPage onLoginClick={() => setShowLogin(true)} />
+          <LandingPage onLoginClick={() => setShowLogin(true)} onRegisterClick={() => { setShowRegister(true); setShowLogin(true); }} />
       );
   }
   return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Cloud, Mic, ShieldCheck, Smartphone, CheckCircle2, ArrowRight, Activity, Wallet, FileEdit } from 'lucide-react';
 import LegalText from './LegalText'; // Asegúrate de tener copiado este archivo
 
-export default function LandingPage({ onLoginClick }) {
+export default function LandingPage({ onLoginClick, onRegisterClick }) {
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
     
@@ -26,9 +26,14 @@ export default function LandingPage({ onLoginClick }) {
                         </div>
                         <span className="font-black text-xl tracking-tighter text-soft-dark">ShiningCloud<span className="text-sage-green font-bold">Mind</span></span>
                     </div>
-                    <button onClick={onLoginClick} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest bg-white hover:bg-warm-white text-soft-dark border border-pastel-pink rounded-full transition-all shadow-sm hover:border-sage-green">
-                        Acceso Profesionales
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button onClick={onRegisterClick} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest bg-sage-green hover:bg-sage-green/90 text-white rounded-full transition-all shadow-sm">
+                            Crear cuenta gratis
+                        </button>
+                        <button onClick={onLoginClick} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest bg-white hover:bg-warm-white text-soft-dark border border-pastel-pink rounded-full transition-all shadow-sm hover:border-sage-green">
+                            Acceso Profesionales
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -50,8 +55,11 @@ export default function LandingPage({ onLoginClick }) {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                        <button onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })} className="group px-8 py-4 bg-soft-dark text-white font-bold rounded-full transition-all hover:bg-opacity-90 hover:shadow-xl hover:-translate-y-0.5 shadow-md flex items-center justify-center gap-3 text-[11px] tracking-widest uppercase">
-                            Digitalizar mi consulta <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
+                        <button onClick={onRegisterClick} className="group px-8 py-4 bg-sage-green text-white font-bold rounded-full transition-all hover:bg-sage-green/90 hover:shadow-xl hover:-translate-y-0.5 shadow-md flex items-center justify-center gap-3 text-[11px] tracking-widest uppercase">
+                            Crear cuenta gratis <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
+                        </button>
+                        <button onClick={onLoginClick} className="px-8 py-4 bg-white text-soft-dark font-bold rounded-full transition-all hover:bg-warm-white hover:border-sage-green hover:shadow-md border border-pastel-pink text-[11px] tracking-widest uppercase">
+                            Ya tengo cuenta
                         </button>
                     </div>
                 </div>
