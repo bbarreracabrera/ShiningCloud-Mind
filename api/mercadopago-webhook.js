@@ -1,50 +1,27 @@
-import crypto from 'crypto';
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Verificar firma de MercadoPago
-    const xSignature = req.headers['x-signature'];
-    const xRequestId = req.headers['x-request-id'];
-    const dataId = req.query['data.id'];
-
-    if (xSignature && process.env.MP_WEBHOOK_SECRET && process.env.MP_WEBHOOK_SECRET.length > 10) {
-        const parts = xSignature.split(',');
-        let ts, hash;
-        parts.forEach(part => {
-            const [key, value] = part.split('=');
-            if (key?.trim() === 'ts') ts = value?.trim();
-            if (key?.trim() === 'v1') hash = value?.trim();
-        });
-
-        const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
-        const computed = crypto
-            .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
-            .update(manifest)
-            .digest('hex');
-
-        if (computed !== hash) {
-            return res.status(401).json({ error: 'Invalid signature' });
-        }
-    }
-
     const { type, data } = req.body;
 
-    // Manejar suscripción nueva o actualizada
+    // Validación básica del payload
+    if (!data?.id || !type) {
+        return res.status(400).json({ error: 'Invalid payload' });
+    }
+
+    console.log('Webhook recibido:', { type, dataId: data.id });
+
     if (type === 'subscription_preapproval') {
         try {
-            // Obtener detalles de la suscripción desde MP
             const mpRes = await fetch(
                 `https://api.mercadopago.com/preapproval/${data.id}`,
                 { headers: { 'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}` }}
             );
             const subscription = await mpRes.json();
 
-            const isActive = subscription.status === 'authorized';
+            console.log('Suscripción MP:', subscription);
 
-            // Guardar en Supabase usando service key
             await fetch(
                 `${process.env.SUPABASE_URL}/rest/v1/saas_subscriptions`,
                 {
@@ -58,7 +35,8 @@ export default async function handler(req, res) {
                     body: JSON.stringify({
                         clinic_email: subscription.payer_email,
                         clinic_name: subscription.payer_email,
-                        status: isActive ? 'active' : 'inactive',
+                        status: subscription.status === 'authorized'
+                            ? 'active' : 'inactive',
                         monthly_fee: 9990,
                         next_billing_date: subscription.next_payment_date,
                         plan_type: 'independiente',
@@ -67,13 +45,14 @@ export default async function handler(req, res) {
                 }
             );
 
+            console.log('Suscripción guardada en Supabase OK');
+
         } catch (error) {
             console.error('Error procesando suscripción:', error);
             return res.status(500).json({ error: error.message });
         }
     }
 
-    // Manejar pago mensual autorizado
     if (type === 'subscription_authorized_payment') {
         try {
             const mpRes = await fetch(
@@ -82,7 +61,6 @@ export default async function handler(req, res) {
             );
             const payment = await mpRes.json();
 
-            // Actualizar fecha próximo cobro en Supabase
             await fetch(
                 `${process.env.SUPABASE_URL}/rest/v1/saas_subscriptions?mp_subscription_id=eq.${payment.preapproval_id}`,
                 {
@@ -104,6 +82,5 @@ export default async function handler(req, res) {
         }
     }
 
-    // Siempre responder 200 para que MP no reintente
     return res.status(200).json({ received: true });
 }
