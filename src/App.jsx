@@ -56,12 +56,14 @@ export default function App() {
   const [uploading, setUploading] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [configLoaded, setConfigLoaded] = useState(false);
 
   useEffect(() => {
+    if (!configLoaded) return;
     if (!session) return;
     const isDefault = !config.name || config.name === 'Psicóloga Independiente';
     setShowOnboarding(isDefault);
-  }, [session, config.name]);
+  }, [config.name, session, configLoaded]);
 
   const handleOnboardingSave = async (formData) => {
     const newConfig = { ...config, ...formData };
@@ -98,7 +100,7 @@ export default function App() {
   
   useClinicData({
       session, setTeam, setUserRole, setClinicOwner, setConfigLocal,
-      setPatientRecords, setAppointments, setFinancialRecords
+      setPatientRecords, setAppointments, setFinancialRecords, setConfigLoaded
   });
 
   const logAction = useCallback(async (action, details, patientId = null) => {

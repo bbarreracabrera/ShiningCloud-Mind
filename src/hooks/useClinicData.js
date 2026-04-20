@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 
 export const useClinicData = ({
     session, setTeam, setUserRole, setClinicOwner, setConfigLocal,
-    setPatientRecords, setAppointments, setFinancialRecords
+    setPatientRecords, setAppointments, setFinancialRecords, setConfigLoaded
 }) => {
     useEffect(() => {
         let isMounted = true;
@@ -50,8 +50,9 @@ export const useClinicData = ({
                     .select('data')
                     .eq('user_id', uid)
                     .maybeSingle();
-                if (settingsData?.data && isMounted) {
-                    setConfigLocal(settingsData.data);
+                if (isMounted) {
+                    if (settingsData?.data) setConfigLocal(settingsData.data);
+                    if (setConfigLoaded) setConfigLoaded(true);
                 }
             } catch (error) {
                 console.error("Error descargando los datos de la clínica:", error);
