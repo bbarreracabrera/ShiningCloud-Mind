@@ -177,8 +177,12 @@ export default function App() {
       setPatientRecords(prev => ({...prev, [id]: dataObj}));
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(async () => {
-          if (!session?.user?.id) return;
-          await saveToSupabase('patients', id, dataObj);
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          if (!currentSession?.user?.id) return;
+          const payloadWithUser = { ...dataObj, id: id.toString(), user_id: currentSession.user.id };
+          const { error } = await supabase.from('patients').upsert(payloadWithUser, { onConflict: 'id' }).select();
+          if (error) console.error('Error guardando paciente:', error);
+          else console.log('Paciente guardado OK');
       }, 1500);
   }, []);
 
