@@ -179,7 +179,7 @@ export default function App() {
       saveTimer.current = setTimeout(async () => {
           const { data: { session: currentSession } } = await supabase.auth.getSession();
           if (!currentSession?.user?.id) return;
-          const payloadWithUser = { ...dataObj, id: id.toString(), user_id: currentSession.user.id };
+          const payloadWithUser = { ...dataObj, id: id.toString(), user_id: currentSession.user.id, name: dataObj?.personal?.legalName || '' };
           const { error } = await supabase.from('patients').upsert(payloadWithUser, { onConflict: 'id' }).select();
           if (error) console.error('Error guardando paciente:', error);
           else console.log('Paciente guardado OK');
