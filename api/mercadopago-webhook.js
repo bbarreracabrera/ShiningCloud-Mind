@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     const xRequestId = req.headers['x-request-id'];
     const dataId = req.query['data.id'];
 
-    if (xSignature && process.env.MP_WEBHOOK_SECRET) {
+    if (xSignature && process.env.MP_WEBHOOK_SECRET && process.env.MP_WEBHOOK_SECRET.length > 10) {
         const parts = xSignature.split(',');
         let ts, hash;
         parts.forEach(part => {
