@@ -1,18 +1,29 @@
 import React from 'react';
 import { DollarSign, TrendingDown, BarChart2, PieChart, ArrowRight, Clock, CalendarClock, User, Wallet, Plus, Calendar, FileEdit, FileText, Tag } from 'lucide-react';
 import { Card, Button, SimpleLineChart } from '../components/UIComponents';
-export default function DashboardView({ 
-    config, userRole, themeMode, t, 
+export default function DashboardView({
+    config, userRole, themeMode, t,
     totalCollected, totalExpenses, netProfit, chartData, todaysAppointments,
     setActiveTab, setFinanceTab, setModal, setSelectedPatientId, setQuoteMode,
-    // Nuevas Props Inyectadas (puedes conectarlas a tu base de datos luego)
-    pendingNotes = [
-        { patientName: 'Sofía Vergara', date: 'Ayer, 16:00', tags: ['#infantil'] },
-        { patientName: 'Martín Rivas', date: 'Lunes, 10:00', tags: ['#ansiedad'] }
-    ]
+    appointments = []
 }) {
-    // Obtenemos la fecha actual formateada
     const today = new Date();
+
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    const pendingNotes = appointments
+        .filter(a => {
+            if (!a.date) return false;
+            const d = new Date(a.date + 'T12:00:00');
+            return d < today && d >= sevenDaysAgo
+                && a.status !== 'no_asistio'
+                && a.status !== 'agendado';
+        })
+        .map(a => ({
+            patientName: a.patient_name || a.name || 'Consultante',
+            date: a.date,
+            tags: [a.treatment ? `#${a.treatment.toLowerCase().split(' ')[0]}` : '#sesión']
+        }));
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const formattedDate = today.toLocaleDateString('es-CL', dateOptions);
 
@@ -132,19 +143,19 @@ export default function DashboardView({
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
-                        <button className="p-4 border border-pastel-pink/50 rounded-xl hover:bg-warm-white hover:border-sage-green text-left transition-all">
+                        <button onClick={() => setActiveTab('informes')} className="p-4 border border-pastel-pink/50 rounded-xl hover:bg-warm-white hover:border-sage-green text-left transition-all">
                             <p className="text-sm font-bold text-soft-dark">Informe Escolar</p>
                             <p className="text-[9px] text-gray-400 uppercase mt-1">Autocompletar</p>
                         </button>
-                        <button className="p-4 border border-pastel-pink/50 rounded-xl hover:bg-warm-white hover:border-sage-green text-left transition-all">
+                        <button onClick={() => setActiveTab('informes')} className="p-4 border border-pastel-pink/50 rounded-xl hover:bg-warm-white hover:border-sage-green text-left transition-all">
                             <p className="text-sm font-bold text-soft-dark">Derivación Psiquiatría</p>
                             <p className="text-[9px] text-gray-400 uppercase mt-1">Plantilla médica</p>
                         </button>
-                        <button className="p-4 border border-pastel-pink/50 rounded-xl hover:bg-warm-white hover:border-sage-green text-left transition-all">
+                        <button onClick={() => setActiveTab('informes')} className="p-4 border border-pastel-pink/50 rounded-xl hover:bg-warm-white hover:border-sage-green text-left transition-all">
                             <p className="text-sm font-bold text-soft-dark">Certificado Asistencia</p>
                             <p className="text-[9px] text-gray-400 uppercase mt-1">Generar PDF</p>
                         </button>
-                        <button className="p-4 border border-pastel-pink/50 rounded-xl bg-sage-green/5 hover:bg-sage-green/10 text-left transition-all flex items-center justify-center">
+                        <button onClick={() => setActiveTab('informes')} className="p-4 border border-pastel-pink/50 rounded-xl bg-sage-green/5 hover:bg-sage-green/10 text-left transition-all flex items-center justify-center">
                             <p className="text-sm font-bold text-sage-green flex gap-2"><Plus size={16}/> Nueva Plantilla</p>
                         </button>
                     </div>
@@ -209,7 +220,7 @@ export default function DashboardView({
                                         {a.time}
                                     </div>
                                     <div className="flex-1">
-                                        <h4 className="font-bold text-soft-dark text-lg group-hover:text-sage-green transition-colors">{a.name}</h4>
+                                        <h4 className="font-bold text-soft-dark text-lg group-hover:text-sage-green transition-colors">{a.patient_name || a.name}</h4>
                                         <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-1">{a.treatment || 'Sesión Psicológica'}</p>
                                     </div>
                                     <div className="w-10 h-10 bg-warm-white rounded-full flex items-center justify-center text-gray-400 group-hover:bg-sage-green group-hover:text-white transition-colors border border-pastel-pink/50 group-hover:border-transparent">

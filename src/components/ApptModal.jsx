@@ -7,7 +7,7 @@ import { supabase } from '../supabase';
 export default function ApptModal({
     themeMode, newAppt, setNewAppt, setModal, patientRecords, setPatientRecords,
     getPatient, savePatientData, notify, appointments, setAppointments,
-    saveToSupabase, sendWhatsApp, getPatientPhone
+    saveToSupabase, sendWhatsApp, getPatientPhone, session
 }) {
     return (
         <div className="fixed inset-0 z-[100] bg-[#312923]/40 backdrop-blur-sm flex items-center justify-center p-4">
@@ -18,8 +18,7 @@ export default function ApptModal({
                         <div className="w-10 h-10 rounded-full bg-[#5B6651]/10 flex items-center justify-center text-[#5B6651]"><Brain size={20}/></div>
                         <div>
                             <h3 className="font-black text-2xl text-[#312923] tracking-tight">{newAppt.id ? 'Detalle de Sesión' : 'Agendar Sesión'}</h3>
-                            {newAppt.id && <p className="text-[10px] font-black text-[#9A8F84] uppercase tracking-widest">Consultante: {newAppt.name}</p>}
-                        </div>
+                                {newAppt.id && <p className="text-[10px] font-black text-[#9A8F84] uppercase tracking-widest">Consultante: {newAppt.patient_name || newAppt.name || 'Sin Nombre'}</p>}                        </div>
                     </div>
                     <button onClick={() => setModal(null)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#FDFBF7] text-[#9A8F84] border border-transparent hover:border-[#DFD2C4]/50 transition-all"><X size={20}/></button>
                 </div>
@@ -34,7 +33,7 @@ export default function ApptModal({
                                 savePatientData(id, { id, name, personal: { legalName: name } });
                                 notify("Nueva ficha terapéutica creada");
                             }
-                            setNewAppt({...newAppt, name});
+                            setNewAppt({...newAppt, patient_name: name});
                         }} />
                     </div>
                 )}
@@ -96,7 +95,7 @@ export default function ApptModal({
                         }}><Trash2 size={20}/></button>
                     )}
                     <button className="flex-1 px-5 py-3.5 bg-[#5B6651] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:-translate-y-0.5 transition-all" onClick={async () => {
-                        if(!newAppt.name) {
+                        if(!newAppt.patient_name) {
                             alert("Por favor, selecciona o crea un consultante.");
                             return;
                         }
@@ -105,7 +104,7 @@ export default function ApptModal({
                             return;
                         }
                         const id = newAppt.id || "appt_" + Date.now();
-                        const data = {...newAppt, id};
+                        const data = {...newAppt, id, user_id: session?.user?.id};
                         await saveToSupabase('appointments', id, data);
                         setAppointments(newAppt.id ? appointments.map(a => a.id === id ? data : a) : [...appointments, data]);
                         setModal(null);
@@ -117,7 +116,7 @@ export default function ApptModal({
 
                 {newAppt.id && (
                     <button 
-                        onClick={() => sendWhatsApp(getPatientPhone(newAppt.name), `Hola ${newAppt.name}, le confirmo su sesión de psicología para el ${newAppt.date.split('-').reverse().join('/')} a las ${newAppt.time}. ¿Me confirma su asistencia?`)} 
+                        onClick={() => sendWhatsApp(getPatientPhone(newAppt.patient_name), `Hola ${newAppt.patient_name}, le confirmo su sesión de psicología para el ${newAppt.date.split('-').reverse().join('/')} a las ${newAppt.time}. ¿Me confirma su asistencia?`)} 
                         className="w-full flex items-center justify-center gap-2 text-[11px] bg-[#5B6651]/5 text-[#5B6651] py-3 rounded-xl font-black uppercase tracking-widest border border-transparent hover:border-[#5B6651]/20 transition-all"
                     >
                         <MessageCircle size={16} /> Enviar Recordatorio por WhatsApp

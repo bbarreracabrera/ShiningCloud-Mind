@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     ArrowLeft, AlertTriangle, User, FileQuestion, Brain, 
     Network, FileText, FileSignature, FolderOpen
@@ -12,6 +12,7 @@ import FamilyMapTab from './FamilyMapTab';
 import PatientEvolutionTab from './PatientEvolutionTab';
 import PatientConsentTab from './PatientConsentTab';
 import PatientImagesTab from './PatientImagesTab';
+import SignaturePad from './SignaturePad';
 
 export default function PatientWorkspace({
     selectedPatientId, setSelectedPatientId, patientTab, setPatientTab, 
@@ -19,8 +20,14 @@ export default function PatientWorkspace({
     activeFormType, setActiveFormType, viewingForm, setViewingForm,
     activeFolder, setActiveFolder, uploading, 
     modal, setModal, getPatient, savePatientData, 
-    logAction, handleGeneratePDF, handleImageUpload, notify, sendWhatsApp, setSelectedImg
+    logAction, handleGeneratePDF, handleImageUpload, notify, sendWhatsApp, setSelectedImg, onSaveSignature
 }) {
+    const [showSignaturePad, setShowSignaturePad] = useState(false);
+    React.useEffect(() => {
+        const handleOpen = () => setShowSignaturePad(true);
+        window.addEventListener('open-signature-pad', handleOpen);
+        return () => window.removeEventListener('open-signature-pad', handleOpen);
+    }, []);
     const p = getPatient(selectedPatientId);
 
     // Las 7 Pestañas Clínicas
@@ -104,6 +111,17 @@ export default function PatientWorkspace({
                 {patientTab === 'images' && <PatientImagesTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} activeFolder={activeFolder} setActiveFolder={setActiveFolder} handleImageUpload={handleImageUpload} uploading={uploading} setSelectedImg={setSelectedImg} notify={notify} />}
                 
             </div>
+            {/* --- INVOCADOR DEL PAD DE FIRMA --- */}
+            {showSignaturePad && (
+                <SignaturePad 
+                    patientName={p?.personal?.legalName || 'Consultante'}
+                    onCancel={() => setShowSignaturePad(false)}
+                    onSave={(base64Data) => {
+                        onSaveSignature(base64Data);
+                        setShowSignaturePad(false);
+                    }}
+                />
+            )}
         </div>
     );
 }

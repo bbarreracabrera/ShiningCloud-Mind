@@ -165,7 +165,7 @@ export default function ReportsView({
                                 disabled={!patient}
                             />
 
-                            <div className="pt-6 mt-auto flex justify-end gap-3 border-t border-[#DFD2C4]/50 mt-6">
+                            <div className="pt-6 mt-auto flex justify-end gap-3 border-t border-[#DFD2C4]/50">
                                 <button 
                                     onClick={handleSaveReport}
                                     disabled={!patient || !reportContent.trim()}

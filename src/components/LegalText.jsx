@@ -22,7 +22,7 @@ export default function LegalText() {
     return (
         <div className="space-y-10 max-w-4xl mx-auto py-4">
             <LegalSection num="01" title="Aceptación de los Términos">
-                <p>Al suscribirse y utilizar ShiningCloud Psico, el Usuario acepta cumplir con estos términos. El servicio se presta "tal cual" y según disponibilidad, enfocado en optimizar la gestión administrativa y clínica de psicólogos y terapeutas independientes en Chile y Latinoamérica.</p>
+                <p>Al suscribirse y utilizar ShiningCloud Mind, el Usuario acepta cumplir con estos términos. El servicio se presta "tal cual" y según disponibilidad, enfocado en optimizar la gestión administrativa y clínica de psicólogos y terapeutas independientes en Chile y Latinoamérica.</p>
             </LegalSection>
 
             <LegalSection num="02" title="Naturaleza del Servicio">

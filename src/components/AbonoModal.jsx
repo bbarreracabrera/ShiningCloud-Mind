@@ -105,7 +105,7 @@ export default function AbonoModal({
                             const nr = {...selectedFinancialRecord, paid: newTotalPaid, payments: updatedPayments}; 
                             
                             setFinancialRecords(financialRecords.map(h => h.id === nr.id ? nr : h));
-                            await saveToSupabase('financials', nr.id, nr); 
+                            await saveToSupabase('financial_records', nr.id, nr);
                             
                             setModal(null); 
                             setPaymentInput({amount:'', method:'Transferencia', date: getLocalDate(), receiptNumber: ''}); // Transferencia como default sugerido

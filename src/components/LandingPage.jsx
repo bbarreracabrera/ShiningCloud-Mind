@@ -7,8 +7,7 @@ export default function LandingPage({ onLoginClick }) {
     const [showTerms, setShowTerms] = useState(false);
     
     // 👇 AQUÍ PONES TU LINK DE MERCADO PAGO / STRIPE
-    const PAYMENT_LINK = "TU_LINK_DE_PAGO_AQUI"; 
-    
+    const PAYMENT_LINK = "https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=df4b41b056fc40e8b0aa1c73c5fdd775"; 
     useEffect(() => {
         if (window.location.hash.includes('type=recovery')) {
             onLoginClick(); 
@@ -25,7 +24,7 @@ export default function LandingPage({ onLoginClick }) {
                         <div className="w-8 h-8 bg-sage-green rounded-xl shadow-sm flex items-center justify-center">
                             <Cloud className="text-white" size={18} strokeWidth={2.5} />
                         </div>
-                        <span className="font-black text-xl tracking-tighter text-soft-dark">ShiningCloud<span className="text-sage-green font-bold">Psico</span></span>
+                        <span className="font-black text-xl tracking-tighter text-soft-dark">ShiningCloud<span className="text-sage-green font-bold">Mind</span></span>
                     </div>
                     <button onClick={onLoginClick} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest bg-white hover:bg-warm-white text-soft-dark border border-pastel-pink rounded-full transition-all shadow-sm hover:border-sage-green">
                         Acceso Profesionales
@@ -160,7 +159,7 @@ export default function LandingPage({ onLoginClick }) {
                         <div className="relative bg-warm-white p-10 md:p-12 rounded-[2.5rem] border border-pastel-pink/50" style={{ boxShadow: '0 25px 50px -12px rgba(250, 218, 221, 0.3)' }}>
                             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green bg-white px-4 py-1.5 rounded-full inline-block border border-pastel-pink mb-8 shadow-sm">Consulta Independiente</h3>
                             <div className="flex items-baseline justify-center gap-1 mb-10">
-                                <span className="text-6xl font-black tracking-tighter text-soft-dark">$15.000</span>
+                                <span className="text-6xl font-black tracking-tighter text-soft-dark">$10.000</span>
                                 <span className="text-gray-400 font-bold text-sm">CLP/mes</span>
                             </div>
                             
@@ -216,7 +215,7 @@ export default function LandingPage({ onLoginClick }) {
                         <div className="p-8 border-b border-pastel-pink/50 flex justify-between items-center bg-warm-white rounded-t-[2.5rem]">
                             <div>
                                 <h2 className="text-2xl font-black text-soft-dark tracking-tight">Marco Legal y Privacidad</h2>
-                                <p className="text-[10px] text-sage-green font-bold uppercase tracking-widest mt-1 text-left">ShiningCloud Psico</p>
+                                <p className="text-[10px] text-sage-green font-bold uppercase tracking-widest mt-1 text-left">ShiningCloud Mind</p>
                             </div>
                             <button onClick={() => setShowTerms(false)} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white text-gray-400 hover:bg-pastel-pink hover:text-soft-dark transition-colors border border-pastel-pink">✕</button>
                         </div>
@@ -242,7 +241,7 @@ export default function LandingPage({ onLoginClick }) {
                     <span className="font-black text-sm tracking-widest uppercase">ShiningCloud</span>
                 </div>
                 <p className="text-gray-400 text-[10px] font-bold px-4 uppercase tracking-widest">
-                    © {new Date().getFullYear()} ShiningCloud Psico Chile.
+                    © {new Date().getFullYear()} ShiningCloud Mind Chile.
                 </p>
             </footer>
         </div>

@@ -23,16 +23,26 @@ export default function PatientConsentTab({
         <div className="space-y-8 animate-in fade-in max-w-5xl mx-auto pb-10">
             
             {/* --- ENCABEZADO --- */}
-            <div className="border-b border-[#DFD2C4]/50 pb-4">
-                <h2 className="text-2xl font-black text-[#312923] tracking-tight flex items-center gap-3">
-                    <div className="p-2.5 bg-[#312923]/10 text-[#312923] rounded-xl">
-                        <FileSignature size={22} />
-                    </div>
-                    Acuerdos y Consentimientos
-                </h2>
-                <p className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest mt-2 ml-1">
-                    Documentos éticos y legales del encuadre terapéutico
-                </p>
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-[#DFD2C4]/50 pb-4">
+                <div>
+                    <h2 className="text-2xl font-black text-[#312923] tracking-tight flex items-center gap-3">
+                        <div className="p-2.5 bg-[#312923]/10 text-[#312923] rounded-xl">
+                            <FileSignature size={22} />
+                        </div>
+                        Acuerdos y Consentimientos
+                    </h2>
+                    <p className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest mt-2 ml-1">
+                        Documentos éticos y legales del encuadre terapéutico
+                    </p>
+                </div>
+                
+                {/* --- BOTÓN MÁGICO DE FIRMA --- */}
+                <button 
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-signature-pad'))}
+                    className="flex items-center gap-2 px-6 py-3.5 bg-[#5B6651] hover:bg-[#4a5442] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md transition-all hover:-translate-y-0.5"
+                >
+                    <FileSignature size={16}/> Pedir Firma Digital
+                </button>
             </div>
 
             {/* --- PANEL DE REDACCIÓN DE NUEVO CONSENTIMIENTO --- */}

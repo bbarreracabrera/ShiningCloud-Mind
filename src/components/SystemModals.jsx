@@ -86,7 +86,7 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
             const { data, error } = await supabase
                 .from('patients')
                 .select('*')
-                .ilike('id', `%${query}%`)
+                .ilike('name', `%${query}%`)
                 .limit(10); 
             
             if (error) {
@@ -136,13 +136,13 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
 };
 
 // --- PANTALLA DE AUTENTICACIÓN ---
-export const AuthScreen = () => {
+export const AuthScreen = ({ onBack }) => {
     const [email, setEmail] = useState(''); 
     const [password, setPassword] = useState(''); 
     const [loading, setLoading] = useState(false); 
     const [msg, setMsg] = useState('');
    
-    const MP_SUBSCRIPTION_LINK = "TU_LINK_DE_PAGO_AQUI";
+    const MP_SUBSCRIPTION_LINK = null;
     const urlParams = new URLSearchParams(window.location.search);
     const vieneDePago = urlParams.get('pago') === 'exitoso';
     const [isSignUp, setIsSignUp] = useState(vieneDePago);
@@ -200,7 +200,7 @@ export const AuthScreen = () => {
                     <div className="w-16 h-16 bg-sage-green rounded-2xl flex items-center justify-center shadow-lg shadow-sage-green/20 mb-5 border border-sage-green/40">
                         <Cloud className="text-white" size={32} strokeWidth={2.5} />
                     </div>
-                    <h1 className="text-3xl font-black text-soft-dark tracking-tight mb-1 text-center">ShiningCloud<span className="text-sage-green">Psico</span></h1>
+                    <h1 className="text-3xl font-black text-soft-dark tracking-tight mb-1 text-center">ShiningCloud<span className="text-sage-green">Mind</span></h1>
                     
                     {vieneDePago ? (
                         <div className="text-center mb-6">
@@ -229,6 +229,7 @@ export const AuthScreen = () => {
                             onChange={e=>setEmail(e.target.value)} 
                             required 
                             label="Correo Electrónico"
+                            autoComplete="email"
                         />
                         
                         <InputField 
@@ -240,6 +241,7 @@ export const AuthScreen = () => {
                             required 
                             minLength={6} 
                             label="Contraseña"
+                            autoComplete="current-password"
                         />
                         
                         {!isSignUp && (
@@ -269,12 +271,18 @@ export const AuthScreen = () => {
                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
                             ¿Aún no tienes cuenta?
                         </p>
-                        <button 
-                            onClick={(e) => { e.preventDefault(); window.location.href = MP_SUBSCRIPTION_LINK; }} 
-                            className="px-6 py-2.5 rounded-full border border-pastel-pink text-gray-500 hover:bg-white hover:text-sage-green hover:border-sage-green transition-all text-xs font-bold uppercase tracking-widest shadow-sm bg-warm-white"
-                        >
-                            Probar 30 días gratis
-                        </button>
+                        {MP_SUBSCRIPTION_LINK ? (
+                            <button
+                                onClick={(e) => { e.preventDefault(); window.location.href = MP_SUBSCRIPTION_LINK; }}
+                                className="px-6 py-2.5 rounded-full border border-pastel-pink text-gray-500 hover:bg-white hover:text-sage-green hover:border-sage-green transition-all text-xs font-bold uppercase tracking-widest shadow-sm bg-warm-white"
+                            >
+                                Probar 30 días gratis
+                            </button>
+                        ) : (
+                            <span className="px-6 py-2.5 rounded-full border border-pastel-pink/40 text-gray-400 text-xs font-bold uppercase tracking-widest bg-warm-white cursor-not-allowed inline-block">
+                                Próximamente
+                            </span>
+                        )}
                     </div>
                 )}
             </div>

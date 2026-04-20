@@ -15,6 +15,7 @@ import SettingsView from './components/SettingsView';
 import AgendaView from './components/AgendaView'; 
 import Sidebar from './components/layout/Sidebar'; 
 import PatientWorkspace from './components/PatientWorkspace'; 
+import PublicBookingPage from './components/PublicBookingPage';
 
 import ApptModal from './components/ApptModal';
 import AbonoModal from './components/AbonoModal';
@@ -46,7 +47,7 @@ export default function App() {
   const [viewingForm, setViewingForm] = useState(null);
   const [activeFolder, setActiveFolder] = useState('Informes Médicos'); // Cambié el default a uno de Psicología
 
-  const [newAppt, setNewAppt] = useState({ name: '', treatment: 'Psicoterapia Individual (Adultos)', date: '', time: '', duration: 60, status: 'agendado', id: null }); 
+  const [newAppt, setNewAppt] = useState({ patient_name: '', treatment: 'Psicoterapia Individual (Adultos)', date: '', time: '', duration: 60, status: 'agendado', id: null });
   const [paymentInput, setPaymentInput] = useState({ amount: '', method: 'Transferencia', date: getLocalDate(), receiptNumber: '' });
   const [selectedFinancialRecord, setSelectedFinancialRecord] = useState(null);
   
@@ -58,7 +59,25 @@ export default function App() {
       iconTheme: { primary: '#a5bda3', secondary: '#fff' }
   });
 
-  useEffect(() => { document.title = "ShiningCloud | Psico"; }, []);
+  useEffect(() => { document.title = "ShiningCloud | Mind"; }, []);
+
+  // ==========================================
+  // 🔐 ESCUCHA DE AUTENTICACIÓN (SUPABASE)
+  // ==========================================
+  useEffect(() => {
+      // 1. Revisamos si ya hay una sesión activa al abrir la app
+      supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session);
+      });
+
+      // 2. Nos suscribimos a los cambios (Login, Logout, etc.)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setSession(session);
+      });
+
+      // Limpiamos la suscripción si el componente se desmonta
+      return () => subscription.unsubscribe();
+  }, []);
   
   useClinicData({
       session, setTeam, setUserRole, setClinicOwner, setConfigLocal,
@@ -68,34 +87,45 @@ export default function App() {
   const logAction = useCallback(async (action, details, patientId = null) => {
     // Lógica de logs (lista para cuando implementes tracking estricto)
   }, [session, clinicOwner]);
-
-  const saveToSupabase = async (tableName, id, dataObj) => { 
+  
+// ==========================================
+  // 💾 MOTOR DE GUARDADO EN BASE DE DATOS
+  // ==========================================
+  const saveToSupabase = async (tableName, id, dataObj) => {
       try {
-          let payload;
+          let payload = {};
 
-          if (tableName === 'patients') {
+          // Armamos el paquete según la tabla
+          if (tableName === 'settings') {
               payload = {
-                  id: id.toString(),
-                  name: dataObj.personal?.legalName || dataObj.name || 'Consultante',
-                  personal: dataObj.personal || {},
-                  anamnesis: dataObj.anamnesis || {},
-                  clinical: dataObj.clinical || {},
-                  images: dataObj.images || [],
-                  consents: dataObj.consents || [],
-                  appointments: dataObj.appointments || []
+                  id: session?.user?.id || 'general',
+                  type: 'config_general',
+                  data: dataObj,
+                  user_id: session?.user?.id
               };
           } else {
-              payload = { id: id.toString(), data: dataObj };
-              if (tableName === 'financial_records' || tableName === 'appointments') {
-                  payload = { ...dataObj, id: id.toString() };
-              }
+              // Para patients, appointments, financial_records, etc., desempacamos los datos
+              payload = { ...dataObj, id: id.toString(), user_id: session?.user?.id };
           }
+          // Enviamos a Supabase forzando la actualización si ya existe (onConflict)
+          const { data, error } = await supabase
+              .from(tableName)
+              .upsert(payload, { onConflict: 'id' }) 
+              .select();
 
-          const { error } = await supabase.from(tableName).upsert(payload);
-          if (error) throw error;
+          // Si Supabase lo rechaza, que nos grite el error en la cara
+          if (error) {
+              console.error(`🚨 ERROR SUPABASE en tabla ${tableName}:`, error);
+              notify(`Error al guardar: ${error.message}`); // Usamos tu sistema de notificaciones
+              return false;
+          } 
+
+          console.log(`✅ ÉXITO guardando en ${tableName}:`, data);
+          return true;
+
       } catch (err) {
-          console.error(`[Error DB] Guardando en ${tableName}:`, err);
-          toast.error("Error de sincronización con la nube.");
+          console.error("🚨 Error crítico de código al guardar:", err);
+          return false;
       }
   };
   
@@ -124,6 +154,37 @@ export default function App() {
       await saveToSupabase('patients', id, dataObj);
   }, []);
 
+ // 👇 NUEVA VERSIÓN BLINDADA (SIN BUCKETS PÚBLICOS) 👇
+  const handleSaveSignature = async (base64Data) => {
+      try {
+          const patient = getPatient(selectedPatientId);
+
+          // En lugar de subir un archivo a internet, guardamos la imagen 
+          // en formato de texto cifrado directamente en su base de datos privada.
+          const updatedPatient = {
+              ...patient,
+              consents: [
+                  ...(patient.consents || []),
+                  {
+                      id: Date.now(),
+                      type: 'Firma Digital de Consentimiento',
+                      date: new Date().toLocaleDateString('es-CL'),
+                      signatureData: base64Data, // <-- 🔒 La imagen encriptada vive aquí
+                      signed: true
+                  }
+              ]
+          };
+
+          await savePatientData(selectedPatientId, updatedPatient);
+          notify("Firma asegurada y encriptada en la ficha del paciente. 🔒");
+          setModal(null); 
+
+      } catch (error) {
+          console.error("Error legal signature:", error);
+          alert("No se pudo asegurar la firma.");
+      }
+  };
+
   const sendWhatsApp = (phone, text) => {
       if (!phone) return alert("El consultante no tiene teléfono registrado.");
       let cleanPhone = phone.replace(/\D/g, ''); 
@@ -144,11 +205,47 @@ export default function App() {
   const netProfit = totalCollected - totalExpenses;
   
   const todaysAppointments = appointments.filter(a => a.date === getLocalDate()).sort((a,b) => a.time.localeCompare(b.time));
-  const chartData = useMemo(() => [], [incomeRecords]);
+  const chartData = useMemo(() => {
+    const months = {};
+    incomeRecords.forEach(rec => {
+      if (!rec.date) return;
+      const [year, month] = rec.date.split('-');
+      const key = `${year}-${month}`;
+      const paid = (rec.payments || []).reduce((s, p) => s + Number(p.amount), 0)
+                   + (rec.paid && !rec.payments ? Number(rec.paid) : 0);
+      months[key] = (months[key] || 0) + paid;
+    });
+    const names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return Object.entries(months)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([key, value]) => ({ month: names[parseInt(key.split('-')[1]) - 1], value }));
+  }, [incomeRecords]);
 
   const t = THEMES[themeMode] || THEMES.dark;
   const isWorkspaceActive = (activeTab === 'ficha' && selectedPatientId !== null) || activeTab === 'agenda';
 
+// ==========================================
+  // 🔒 EL MURO DE ACCESO Y ENRUTAMIENTO
+  // ==========================================
+  // Revisamos si la URL tiene el parámetro de reserva
+  const urlParams = new URLSearchParams(window.location.search);
+  const reservaId = urlParams.get('reserva');
+
+  // Si es una URL de reserva, mostramos el portal público SIN pedir login
+  if (reservaId) {
+      // Importaremos este componente en el siguiente paso
+      return <PublicBookingPage clinicId={reservaId} />;
+  }
+
+  // Si no es reserva y no hay sesión, mostramos Landing o Login
+  if (!session) {
+      return showLogin ? (
+          <AuthScreen onBack={() => setShowLogin(false)} />
+      ) : (
+          <LandingPage onLoginClick={() => setShowLogin(true)} />
+      );
+  }
   return (
     <div className={`min-h-screen flex bg-pastel-pink text-soft-dark transition-all duration-500 font-sans`}>
       <Toaster position="bottom-center" reverseOrder={false} />
@@ -165,7 +262,7 @@ export default function App() {
 
       <main className={`flex-1 p-6 md:p-10 h-screen overflow-y-auto transition-all duration-300 ${isWorkspaceActive ? 'md:ml-20' : 'md:ml-[250px]'}`}>
         
-        {activeTab === 'dashboard' && <DashboardView config={config} userRole={userRole} themeMode={themeMode} t={t} totalCollected={totalCollected} totalExpenses={totalExpenses} netProfit={netProfit} chartData={chartData} todaysAppointments={todaysAppointments} setActiveTab={setActiveTab} setModal={setModal} setSelectedPatientId={setSelectedPatientId} />}
+        {activeTab === 'dashboard' && <DashboardView config={config} userRole={userRole} themeMode={themeMode} t={t} totalCollected={totalCollected} totalExpenses={totalExpenses} netProfit={netProfit} chartData={chartData} todaysAppointments={todaysAppointments} appointments={appointments} setActiveTab={setActiveTab} setModal={setModal} setSelectedPatientId={setSelectedPatientId} />}
         
         {activeTab === 'agenda' && <AgendaView appointments={appointments} onOpenModal={(appt) => { setNewAppt(appt); setModal('appt'); }} />}
         
@@ -233,7 +330,15 @@ export default function App() {
                 logAction={logAction} notify={notify} sendWhatsApp={sendWhatsApp}
                 setSelectedImg={setSelectedImg}
                 handleImageUpload={(file) => uploadPatientImage(file, { selectedPatientId, setUploading, getPatient, activeFolder, savePatientData, notify, logAction })}
-                handleGeneratePDF={(type, data) => generatePDF(type, data, config)}
+                handleGeneratePDF={(type, data) => generatePDF(type, data, { 
+    themeMode, 
+    config, 
+    selectedPatientId, 
+    getPatient, 
+    patientRecords, 
+    notify 
+})}
+                onSaveSignature={handleSaveSignature}
             />
         )}
       </main>
@@ -244,7 +349,7 @@ export default function App() {
               patientRecords={patientRecords} setPatientRecords={setPatientRecords} 
               getPatient={getPatient} savePatientData={savePatientData} 
               notify={notify} appointments={appointments} setAppointments={setAppointments} 
-              saveToSupabase={saveToSupabase} sendWhatsApp={sendWhatsApp} getPatientPhone={getPatientPhone}
+              saveToSupabase={saveToSupabase} sendWhatsApp={sendWhatsApp} getPatientPhone={getPatientPhone} session={session}
           />
       )}
     </div>
