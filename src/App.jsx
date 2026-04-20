@@ -177,6 +177,7 @@ export default function App() {
       setPatientRecords(prev => ({...prev, [id]: dataObj}));
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(async () => {
+          if (!session?.user?.id) return;
           await saveToSupabase('patients', id, dataObj);
       }, 1500);
   }, []);
@@ -317,6 +318,7 @@ export default function App() {
                 <div className="flex gap-2">
                     <PatientSelect theme={themeMode} patients={patientRecords} placeholder="Buscar o Crear Consultante..." onSelect={(p) => {
                         if (p.id === 'new') {
+                            if (!session?.user?.id) { notify("Debes iniciar sesión para crear pacientes."); return; }
                             let nombreReal = p.name;
                             if (!nombreReal || nombreReal.trim() === "") { nombreReal = window.prompt("Confirma el nombre del nuevo consultante:"); if (!nombreReal) return; }
                             const newId = "pac_" + Date.now().toString();
