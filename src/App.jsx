@@ -18,6 +18,7 @@ import PatientWorkspace from './components/PatientWorkspace';
 import PublicBookingPage from './components/PublicBookingPage';
 
 import ApptModal from './components/ApptModal';
+import OnboardingModal from './components/OnboardingModal';
 import AbonoModal from './components/AbonoModal';
 import RecoveryModal from './components/RecoveryModal';
 
@@ -53,6 +54,21 @@ export default function App() {
   
   const [uploading, setUploading] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (!session) return;
+    const isDefault = !config.name || config.name === 'Psicóloga Independiente';
+    setShowOnboarding(isDefault);
+  }, [session, config.name]);
+
+  const handleOnboardingSave = async (formData) => {
+    const newConfig = { ...config, ...formData };
+    setConfigLocal(newConfig);
+    await saveToSupabase('settings', 'general', newConfig);
+    setShowOnboarding(false);
+    notify("¡Consulta configurada! Bienvenida a ShiningCloud Mind.");
+  };
 
   const notify = (m) => toast.success(m, { 
       style: { borderRadius: '12px', background: '#fadadd', color: '#4a4a4b', border: '1px solid rgba(250,218,221,0.5)', fontWeight: 'bold', fontSize: '13px' },
@@ -351,6 +367,10 @@ export default function App() {
               notify={notify} appointments={appointments} setAppointments={setAppointments} 
               saveToSupabase={saveToSupabase} sendWhatsApp={sendWhatsApp} getPatientPhone={getPatientPhone} session={session}
           />
+      )}
+
+      {showOnboarding && (
+          <OnboardingModal onSave={handleOnboardingSave} />
       )}
     </div>
   );
