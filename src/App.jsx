@@ -125,9 +125,10 @@ export default function App() {
               payload = { ...dataObj, id: id.toString(), user_id: session?.user?.id };
           }
           // Enviamos a Supabase forzando la actualización si ya existe (onConflict)
+          const conflictCol = tableName === 'settings' ? 'user_id' : 'id';
           const { data, error } = await supabase
               .from(tableName)
-              .upsert(payload, { onConflict: 'id' }) 
+              .upsert(payload, { onConflict: conflictCol })
               .select();
 
           // Si Supabase lo rechaza, que nos grite el error en la cara
