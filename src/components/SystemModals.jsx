@@ -142,7 +142,7 @@ export const AuthScreen = ({ onBack, initialSignUp = false }) => {
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState('');
 
-    const MP_SUBSCRIPTION_LINK = null;
+    const MP_SUBSCRIPTION_LINK = "https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=df4b41b056fc40e8b0aa1c73c5fdd775";
     const urlParams = new URLSearchParams(window.location.search);
     const vieneDePago = urlParams.get('pago') === 'exitoso';
     const [isSignUp, setIsSignUp] = useState(vieneDePago || initialSignUp);
@@ -274,18 +274,12 @@ export const AuthScreen = ({ onBack, initialSignUp = false }) => {
                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
                             ¿Aún no tienes cuenta?
                         </p>
-                        {MP_SUBSCRIPTION_LINK ? (
-                            <button
-                                onClick={(e) => { e.preventDefault(); window.location.href = MP_SUBSCRIPTION_LINK; }}
-                                className="px-6 py-2.5 rounded-full border border-pastel-pink text-gray-500 hover:bg-white hover:text-sage-green hover:border-sage-green transition-all text-xs font-bold uppercase tracking-widest shadow-sm bg-warm-white"
-                            >
-                                Probar 30 días gratis
-                            </button>
-                        ) : (
-                            <span className="px-6 py-2.5 rounded-full border border-pastel-pink/40 text-gray-400 text-xs font-bold uppercase tracking-widest bg-warm-white cursor-not-allowed inline-block">
-                                Próximamente
-                            </span>
-                        )}
+                        <button
+                            onClick={(e) => { e.preventDefault(); window.open(MP_SUBSCRIPTION_LINK, '_blank'); }}
+                            className="w-full py-4 px-8 rounded-full bg-sage-green hover:bg-sage-green/90 text-white font-bold text-xs uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5"
+                        >
+                            Comenzar gratis — $9.990/mes
+                        </button>
                     </div>
                 )}
             </div>
