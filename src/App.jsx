@@ -76,7 +76,8 @@ export default function App() {
             .select('*')
             .eq('clinic_email', session.user.email)
             .eq('status', 'active')
-            .single();
+            .limit(1)
+            .maybeSingle();
 
         setSubscription(data);
         setCheckingSubscription(false);
