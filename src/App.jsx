@@ -57,6 +57,8 @@ export default function App() {
   const [selectedImg, setSelectedImg] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [configLoaded, setConfigLoaded] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
 
   useEffect(() => {
     if (!configLoaded) return;
@@ -64,6 +66,24 @@ export default function App() {
     const isDefault = !config.name || config.name === 'Psicóloga Independiente';
     setShowOnboarding(isDefault);
   }, [config.name, session, configLoaded]);
+
+  useEffect(() => {
+    if (!session?.user?.email) return;
+
+    const checkSubscription = async () => {
+        const { data } = await supabase
+            .from('saas_subscriptions')
+            .select('*')
+            .eq('clinic_email', session.user.email)
+            .eq('status', 'active')
+            .single();
+
+        setSubscription(data);
+        setCheckingSubscription(false);
+    };
+
+    checkSubscription();
+  }, [session]);
 
   const handleOnboardingSave = async (formData) => {
     const newConfig = { ...config, ...formData };
@@ -280,6 +300,40 @@ export default function App() {
           <LandingPage onLoginClick={() => setShowLogin(true)} onRegisterClick={() => { setShowRegister(true); setShowLogin(true); }} />
       );
   }
+
+  if (checkingSubscription) {
+      return (
+          <div className="min-h-screen bg-pastel-pink flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-sage-green border-t-transparent rounded-full animate-spin"/>
+          </div>
+      );
+  }
+
+  if (!subscription) {
+      return (
+          <div className="min-h-screen bg-pastel-pink flex flex-col items-center justify-center p-6 text-center">
+              <h2 className="text-2xl font-black text-soft-dark mb-3">
+                  Activa tu suscripción
+              </h2>
+              <p className="text-gray-500 mb-6 max-w-sm">
+                  Para acceder a ShiningCloud Mind necesitas una suscripción activa.
+              </p>
+              <button
+                  onClick={() => window.open('https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=df4b41b056fc40e8b0aa1c73c5fdd775', '_blank')}
+                  className="px-8 py-4 bg-sage-green text-white font-bold rounded-full hover:bg-opacity-90"
+              >
+                  Suscribirme — $9.990/mes
+              </button>
+              <button
+                  onClick={() => supabase.auth.signOut()}
+                  className="mt-4 text-sm text-gray-400 hover:text-gray-600"
+              >
+                  Cerrar sesión
+              </button>
+          </div>
+      );
+  }
+
   return (
     <div className={`min-h-screen flex bg-pastel-pink text-soft-dark transition-all duration-500 font-sans`}>
       <Toaster position="bottom-center" reverseOrder={false} />
