@@ -121,8 +121,9 @@ export default function PublicBookingPage({ clinicId }) {
     // 4. Guardado simultáneo (Cita + Paciente)
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
         if (honeypot !== '') return setStep(4); // Trampa para bots
-        
+
         setIsSubmitting(true);
         try {
             const newApptId = "appt_" + Date.now().toString();

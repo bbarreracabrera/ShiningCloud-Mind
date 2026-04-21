@@ -56,6 +56,13 @@ export default function AgendaView({ appointments, onOpenModal }) {
             
             {/* --- GRILLA PRINCIPAL --- */}
             <div className="flex-1 overflow-auto rounded-[2rem] border border-[#DFD2C4]/60 bg-white shadow-xl custom-scrollbar relative">
+                {appointments.length === 0 && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center py-20 text-center z-10 pointer-events-none">
+                        <p className="text-2xl mb-2">📅</p>
+                        <p className="font-bold text-soft-dark">Sin sesiones esta semana</p>
+                        <p className="text-sm text-gray-400 mt-1">Haz clic en "Nueva sesión" para agendar</p>
+                    </div>
+                )}
                 <div className="grid grid-cols-8 min-w-[900px]">
                     <div className="p-2 border-b border-r border-[#DFD2C4]/40 bg-white/95 sticky top-0 z-30 flex items-center justify-center rounded-tl-[2rem]">
                         <span className="text-[9px] font-black text-[#9A8F84] uppercase tracking-widest">Hora</span>

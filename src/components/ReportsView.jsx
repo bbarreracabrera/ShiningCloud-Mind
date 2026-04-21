@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Download, Trash2, History, User, FileSignature, CheckCircle } from 'lucide-react';
 import { Card } from './UIComponents';
 import { PatientSelect } from './SystemModals';
@@ -11,6 +11,8 @@ export default function ReportsView({
     const [activeTemplate, setActiveTemplate] = useState('asistencia');
     const [reportContent, setReportContent] = useState('');
     const [viewMode, setViewMode] = useState('nuevo'); // 'nuevo' o 'historial'
+
+    useEffect(() => { setViewMode('nuevo'); }, [selectedPatientId]);
 
     const patient = selectedPatientId ? getPatient(selectedPatientId) : null;
     const reportsHistory = patient?.clinical?.reports || [];
