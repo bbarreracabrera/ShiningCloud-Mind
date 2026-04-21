@@ -160,6 +160,23 @@ export default function PublicBookingPage({ clinicId }) {
             });
             if (patientError) console.error("No se pudo pre-crear el paciente, pero la cita se guardó.", patientError);
 
+            try {
+                await supabase.functions.invoke('notify-booking', {
+                    body: {
+                        psicologoEmail: clinicConfig?.email ||
+                                       clinicConfig?.contact_email ||
+                                       clinicConfig?.wpGreeting?.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0],
+                        pacienteNombre: formData.name,
+                        fecha: formData.date,
+                        hora: formData.time,
+                        tratamiento: formData.reason || 'Consulta General (Agendado Online)'
+                    }
+                });
+            } catch (emailError) {
+                console.warn('Email no enviado:', emailError);
+                // No bloqueamos el flujo si falla el email
+            }
+
             setStep(4);
         } catch (err) {
             toast.error("Hubo un error al agendar tu cita.");
