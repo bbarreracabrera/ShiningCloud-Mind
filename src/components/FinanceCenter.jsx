@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+
+const calcPaid = (rec) => {
+    if (rec.payments?.length > 0) {
+        return rec.payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+    }
+    return Number(rec.paid) || 0;
+};
 import * as XLSX from 'xlsx'; 
 import { Wallet, FileSpreadsheet, TrendingDown, MessageCircle, Box, Plus, Trash2, ArrowUpRight, ArrowDownRight, User, Brain, Calculator, Printer, CheckCircle } from 'lucide-react';
 import { Card, InputField } from './UIComponents';
@@ -25,16 +32,13 @@ export default function FinanceCenter({
     const incomeRecords = financialRecords.filter(f => !f.type || f.type === 'income');
     const expenseRecords = financialRecords.filter(f => f.type === 'expense');
 
-    const totalCollected = incomeRecords.reduce((acc, rec) => {
-        const paymentsSum = (rec.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
-        return acc + (paymentsSum > 0 ? paymentsSum : (Number(rec.paid) || 0));
-    }, 0);
+    const totalCollected = incomeRecords.reduce((acc, rec) => acc + calcPaid(rec), 0);
 
     const totalExpenses = expenseRecords.reduce((a, b) => a + (Number(b.amount) || 0), 0);
     const netProfit = totalCollected - totalExpenses;
 
     const totalDebt = incomeRecords.reduce((acc, rec) => {
-        const paid = (rec.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0) + (rec.paid && !rec.payments ? (Number(rec.paid) || 0) : 0);
+        const paid = calcPaid(rec);
         const total = Number(rec.total) || 0;
         const pending = total - paid;
         return pending > 0 ? acc + pending : acc;
@@ -48,7 +52,7 @@ export default function FinanceCenter({
             let pendingAmount = 0;
             
             if (isIncome) {
-                incomeAmount = (record.payments || []).reduce((s,p) => s + Number(p.amount), 0) + (record.paid && !record.payments ? Number(record.paid) : 0);
+                incomeAmount = calcPaid(record);
                 pendingAmount = (Number(record.total) || 0) - incomeAmount;
                 if(pendingAmount < 0) pendingAmount = 0;
             }
@@ -229,8 +233,8 @@ export default function FinanceCenter({
                             </div>
                         ) : (
                             incomeRecords.map(h => {
-                                const paid = (h.payments || []).reduce((s,p)=>s+Number(p.amount),0) + (h.paid && !h.payments ? Number(h.paid) : 0);
-                                const pending = (Number(h.total) || 0) - paid; 
+                                const paid = calcPaid(h);
+                                const pending = (Number(h.total) || 0) - paid;
                                 
                                 return (
                                     <div key={h.id} onClick={() => pending > 0 ? handleQuickPayment(h, pending) : null} className={`group flex flex-col md:flex-row justify-between md:items-center p-6 bg-white rounded-3xl border transition-all ${pending > 0 ? 'border-[#CBAAA2]/60 hover:border-[#CBAAA2] cursor-pointer hover:shadow-md' : 'border-[#DFD2C4]/40 opacity-80 cursor-default'}`}>
@@ -274,11 +278,10 @@ export default function FinanceCenter({
 
                         <div className="grid gap-4">
                             {incomeRecords.filter(h => {
-                                const paid = (h.payments || []).reduce((s,p)=>s+Number(p.amount),0) + (h.paid && !h.payments ? Number(h.paid) : 0);
-                                return (Number(h.total) || 0) - paid > 0;
+                                return (Number(h.total) || 0) - calcPaid(h) > 0;
                             }).map(h => {
-                                const paid = (h.payments || []).reduce((s,p)=>s+Number(p.amount),0) + (h.paid && !h.payments ? Number(h.paid) : 0);
-                                const pending = (Number(h.total) || 0) - paid; 
+                                const paid = calcPaid(h);
+                                const pending = (Number(h.total) || 0) - paid;
                                 return (
                                     <div key={h.id} className="p-6 bg-white rounded-3xl border border-[#DFD2C4]/60 hover:border-[#CBAAA2]/50 hover:shadow-sm transition-all flex flex-col md:flex-row justify-between items-center gap-6">
                                         <div className="flex items-center gap-4 w-full md:w-auto">

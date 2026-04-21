@@ -16,7 +16,8 @@ export const useClinicData = ({
 
             try {
                 // 1. Descargar Pacientes
-                const { data: patientsData } = await supabase.from('patients').select('*').eq('user_id', uid);
+                const { data: patientsData, error: patientsError } = await supabase.from('patients').select('*').eq('user_id', uid);
+                if (patientsError) console.error('Error cargando pacientes:', patientsError);
                 if (patientsData && isMounted) {
                     const records = {};
                     patientsData.forEach(p => {
@@ -33,29 +34,33 @@ export const useClinicData = ({
                 }
 
                 // 2. Descargar Citas (Agenda)
-                const { data: apptsData } = await supabase.from('appointments').select('*').eq('user_id', uid);
+                const { data: apptsData, error: apptsError } = await supabase.from('appointments').select('*').eq('user_id', uid);
+                if (apptsError) console.error('Error cargando citas:', apptsError);
                 if (apptsData && isMounted) {
                     setAppointments(apptsData);
                 }
 
                 // 3. Descargar Finanzas y Pagos
-                const { data: finData } = await supabase.from('financial_records').select('*').eq('user_id', uid);
+                const { data: finData, error: finError } = await supabase.from('financial_records').select('*').eq('user_id', uid);
+                if (finError) console.error('Error cargando finanzas:', finError);
                 if (finData && isMounted) {
                     setFinancialRecords(finData);
                 }
 
                 // 4. Descargar Configuración de la Consulta
-                const { data: settingsData } = await supabase
+                const { data: settingsData, error: settingsError } = await supabase
                     .from('settings')
                     .select('data')
                     .eq('user_id', uid)
                     .maybeSingle();
+                if (settingsError) console.error('Error cargando configuración:', settingsError);
                 if (isMounted) {
                     if (settingsData?.data) setConfigLocal(settingsData.data);
                     if (setConfigLoaded) setConfigLoaded(true);
                 }
             } catch (error) {
                 console.error("Error descargando los datos de la clínica:", error);
+                if (setConfigLoaded) setConfigLoaded(true); // desbloquear onboarding aunque falle
             }
         };
 

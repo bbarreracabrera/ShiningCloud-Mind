@@ -13,6 +13,7 @@ export default function PublicBookingPage({ clinicId }) {
     const [step, setStep]= useState(1);
     const [formData, setFormData]= useState({ name: '', rut: '', phone: '', reason: '', date: '', time: '' });
     const [honeypot, setHoneypot]= useState('');
+    const [formStartTime] = useState(Date.now());
     const [availableTimes, setAvailableTimes]= useState([]);
     const [isSubmitting, setIsSubmitting]= useState(false);
 
@@ -123,6 +124,8 @@ export default function PublicBookingPage({ clinicId }) {
         e.preventDefault();
         if (isSubmitting) return;
         if (honeypot !== '') return setStep(4); // Trampa para bots
+        const timeSpent = Date.now() - formStartTime;
+        if (timeSpent < 3000) { console.log('Bot detectado (tiempo insuficiente)'); return; }
 
         setIsSubmitting(true);
         try {
