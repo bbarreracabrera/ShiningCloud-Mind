@@ -62,5 +62,5 @@ export const useClinicData = ({
         fetchData();
 
         return () => { isMounted = false; };
-    }, [session, setPatientRecords, setAppointments, setFinancialRecords, setUserRole, setConfigLocal]);
+    }, [session, setPatientRecords, setAppointments, setFinancialRecords, setUserRole, setConfigLocal, setConfigLoaded]);
 };

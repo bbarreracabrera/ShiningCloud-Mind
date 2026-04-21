@@ -59,6 +59,7 @@ export default function App() {
   const [configLoaded, setConfigLoaded] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  const [showSubscriptionBanner, setShowSubscriptionBanner] = useState(false);
 
   useEffect(() => {
     if (!configLoaded) return;
@@ -81,6 +82,7 @@ export default function App() {
 
         setSubscription(data);
         setCheckingSubscription(false);
+        if (!data) setShowSubscriptionBanner(true);
     };
 
     checkSubscription();
@@ -302,43 +304,24 @@ export default function App() {
       );
   }
 
-  if (checkingSubscription) {
-      return (
-          <div className="min-h-screen bg-pastel-pink flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-sage-green border-t-transparent rounded-full animate-spin"/>
-          </div>
-      );
-  }
-
-  if (!subscription) {
-      return (
-          <div className="min-h-screen bg-pastel-pink flex flex-col items-center justify-center p-6 text-center">
-              <h2 className="text-2xl font-black text-soft-dark mb-3">
-                  Activa tu suscripción
-              </h2>
-              <p className="text-gray-500 mb-6 max-w-sm">
-                  Para acceder a ShiningCloud Mind necesitas una suscripción activa.
-              </p>
-              <button
-                  onClick={() => window.open('https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=df4b41b056fc40e8b0aa1c73c5fdd775', '_blank')}
-                  className="px-8 py-4 bg-sage-green text-white font-bold rounded-full hover:bg-opacity-90"
-              >
-                  Suscribirme — $9.990/mes
-              </button>
-              <button
-                  onClick={() => supabase.auth.signOut()}
-                  className="mt-4 text-sm text-gray-400 hover:text-gray-600"
-              >
-                  Cerrar sesión
-              </button>
-          </div>
-      );
-  }
-
   return (
     <div className={`min-h-screen flex bg-pastel-pink text-soft-dark transition-all duration-500 font-sans`}>
       <Toaster position="bottom-center" reverseOrder={false} />
-      
+
+      {showSubscriptionBanner && (
+          <div className="fixed top-0 left-0 right-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between">
+              <p className="text-sm text-amber-800 font-medium">
+                  Tu suscripción no está activa.
+                  <button
+                      onClick={() => window.open('https://www.mercadopago.cl/subscriptions/checkout?preapproval_plan_id=df4b41b056fc40e8b0aa1c73c5fdd775', '_blank')}
+                      className="ml-2 underline font-bold">
+                      Suscribirme →
+                  </button>
+              </p>
+              <button onClick={() => setShowSubscriptionBanner(false)} className="text-amber-600 hover:text-amber-800 font-bold">✕</button>
+          </div>
+      )}
+
       {mobileMenuOpen && <div className="fixed inset-0 z-40 bg-soft-dark/30 backdrop-blur-sm md:hidden" onClick={()=>setMobileMenuOpen(false)}></div>}
       
       <Sidebar 

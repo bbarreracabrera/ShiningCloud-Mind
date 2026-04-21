@@ -128,6 +128,13 @@ export default function PublicBookingPage({ clinicId }) {
             const newApptId = "appt_" + Date.now().toString();
             const newPatientId = `pac_${Date.now().toString()}`;
 
+            // Obtener user_id del psicólogo desde settings
+            const { data: clinicData } = await supabase
+                .from('settings')
+                .select('user_id')
+                .eq('id', clinicId)
+                .single();
+
             // A. Guardamos la cita (Esquema estricto sin dar error 400)
             const { error: apptError } = await supabase.from('appointments').insert({
                 id: newApptId,
@@ -136,7 +143,8 @@ export default function PublicBookingPage({ clinicId }) {
                 patient_name: formData.name,
                 treatment: formData.reason || 'Consulta General (Agendado Online)',
                 duration: 60,
-                status: 'pendiente'
+                status: 'pendiente',
+                user_id: clinicData?.user_id || null
             });
             if (apptError) throw apptError;
             
