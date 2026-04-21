@@ -25,16 +25,16 @@ export default function FinanceCenter({
     const incomeRecords = financialRecords.filter(f => !f.type || f.type === 'income');
     const expenseRecords = financialRecords.filter(f => f.type === 'expense');
 
-    const totalCollected = incomeRecords.reduce((acc, rec) => { 
-        const paymentsSum = (rec.payments || []).reduce((s, p) => s + Number(p.amount), 0); 
-        return acc + (paymentsSum > 0 ? paymentsSum : (Number(rec.paid) || 0)); 
+    const totalCollected = incomeRecords.reduce((acc, rec) => {
+        const paymentsSum = (rec.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
+        return acc + (paymentsSum > 0 ? paymentsSum : (Number(rec.paid) || 0));
     }, 0);
 
     const totalExpenses = expenseRecords.reduce((a, b) => a + (Number(b.amount) || 0), 0);
     const netProfit = totalCollected - totalExpenses;
 
     const totalDebt = incomeRecords.reduce((acc, rec) => {
-        const paid = (rec.payments || []).reduce((s,p) => s + Number(p.amount), 0) + (rec.paid && !rec.payments ? Number(rec.paid) : 0);
+        const paid = (rec.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0) + (rec.paid && !rec.payments ? (Number(rec.paid) || 0) : 0);
         const total = Number(rec.total) || 0;
         const pending = total - paid;
         return pending > 0 ? acc + pending : acc;

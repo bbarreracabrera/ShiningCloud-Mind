@@ -11,7 +11,7 @@ export default function SettingsView({
     const inputClass = "w-full p-4 rounded-2xl bg-[#FDFBF7] border border-[#DFD2C4] outline-none font-bold text-[#312923] focus:border-[#5B6651] transition-colors shadow-sm";
     const labelClass = "text-[10px] font-black uppercase tracking-widest text-[#9A8F84] ml-2 mb-2 block";
 
-    // Estado local para el directorio de derivaciones
+    const [saving, setSaving] = useState(false);
     const [newNetwork, setNewNetwork] = useState({ name: '', specialty: '', phone: '' });
 
     const defaultSchedule = {
@@ -59,15 +59,21 @@ export default function SettingsView({
                     <h2 className="text-4xl font-black text-[#312923] tracking-tighter">Ajustes de Consulta</h2>
                 </div>
                 {userRole === 'admin' && (
-                    <button 
-                        onClick={()=>{
-                            const configToSave = { ...config, schedule: config.schedule || defaultSchedule };
-                            saveToSupabase('settings', 'general', configToSave); 
-                            notify("Ajustes Guardados con éxito");
+                    <button
+                        disabled={saving}
+                        onClick={async () => {
+                            setSaving(true);
+                            try {
+                                const configToSave = { ...config, schedule: config.schedule || defaultSchedule };
+                                await saveToSupabase('settings', 'general', configToSave);
+                                notify("Ajustes Guardados con éxito");
+                            } finally {
+                                setSaving(false);
+                            }
                         }}
-                        className="flex items-center justify-center gap-2 px-8 py-3.5 bg-[#312923] text-white font-black text-[11px] uppercase tracking-widest rounded-2xl hover:bg-[#1a1512] transition-all shadow-lg shadow-[#312923]/20 hover:-translate-y-0.5 w-full md:w-auto"
+                        className="flex items-center justify-center gap-2 px-8 py-3.5 bg-[#312923] text-white font-black text-[11px] uppercase tracking-widest rounded-2xl hover:bg-[#1a1512] transition-all shadow-lg shadow-[#312923]/20 hover:-translate-y-0.5 w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
                     >
-                        <Save size={16}/> Guardar Cambios
+                        <Save size={16}/> {saving ? 'Guardando...' : 'Guardar Cambios'}
                     </button>
                 )}
             </div>
