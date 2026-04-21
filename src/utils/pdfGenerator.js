@@ -2,18 +2,30 @@ import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
 export const generatePDF = (type, data = null, context = {}) => {
+    if (!context || !context.config) {
+        console.error('generatePDF: contexto inválido', context);
+        return;
+    }
+
     // Desestructuración segura con valores por defecto para evitar errores de "undefined"
-    const { 
-        themeMode, 
-        config = {}, 
-        selectedPatientId, 
-        getPatient, 
-        sessionData, 
-        patientRecords, 
-        prescription, 
-        notify, 
-        logAction 
+    const {
+        themeMode,
+        config = {},
+        selectedPatientId,
+        getPatient,
+        sessionData,
+        patientRecords,
+        prescription,
+        notify,
+        logAction
     } = context;
+
+    const patient = getPatient ? getPatient(selectedPatientId) : null;
+
+    if (!patient && type !== 'rx' && type !== 'report') {
+        console.error('generatePDF: paciente no encontrado para tipo', type);
+        return;
+    }
 
     try {
         const doc = new jsPDF();

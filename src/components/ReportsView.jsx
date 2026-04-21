@@ -11,8 +11,9 @@ export default function ReportsView({
     const [activeTemplate, setActiveTemplate] = useState('asistencia');
     const [reportContent, setReportContent] = useState('');
     const [viewMode, setViewMode] = useState('nuevo'); // 'nuevo' o 'historial'
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-    useEffect(() => { setViewMode('nuevo'); }, [selectedPatientId]);
+    useEffect(() => { setViewMode('nuevo'); setHasUnsavedChanges(false); }, [selectedPatientId]);
 
     const patient = selectedPatientId ? getPatient(selectedPatientId) : null;
     const reportsHistory = patient?.clinical?.reports || [];
@@ -76,6 +77,7 @@ export default function ReportsView({
         });
         
         notify("Informe guardado en el historial del consultante");
+        setHasUnsavedChanges(false);
         setViewMode('historial');
     };
 
@@ -94,14 +96,19 @@ export default function ReportsView({
                 
                 {/* TABS NUEVO / HISTORIAL */}
                 <div className="flex bg-[#FDFBF7] p-1.5 rounded-2xl border border-[#DFD2C4]/60 shadow-sm w-fit">
-                    <button 
+                    <button
                         onClick={() => setViewMode('nuevo')}
                         className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${viewMode === 'nuevo' ? 'bg-[#312923] text-white shadow-md' : 'text-[#9A8F84] hover:text-[#312923]'}`}
                     >
                         <FileSignature size={14}/> Redactar
                     </button>
-                    <button 
-                        onClick={() => setViewMode('historial')}
+                    <button
+                        onClick={() => {
+                            if (hasUnsavedChanges && viewMode === 'nuevo') {
+                                if (!window.confirm('Tienes cambios sin guardar. ¿Salir de todas formas?')) return;
+                            }
+                            setViewMode('historial');
+                        }}
                         className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${viewMode === 'historial' ? 'bg-[#5B6651] text-white shadow-md' : 'text-[#9A8F84] hover:text-[#312923]'}`}
                     >
                         <History size={14}/> Historial
@@ -162,7 +169,7 @@ export default function ReportsView({
                             <textarea 
                                 className="flex-1 w-full bg-white border border-[#DFD2C4] rounded-2xl p-6 text-sm text-[#312923] font-medium leading-relaxed outline-none focus:border-[#5B6651] transition-all resize-none shadow-inner custom-scrollbar"
                                 value={reportContent}
-                                onChange={e => setReportContent(e.target.value)}
+                                onChange={e => { setReportContent(e.target.value); setHasUnsavedChanges(true); }}
                                 placeholder="Selecciona un paciente para comenzar a redactar..."
                                 disabled={!patient}
                             />
