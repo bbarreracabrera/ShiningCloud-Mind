@@ -16,6 +16,7 @@ export default function PublicBookingPage({ clinicId }) {
     const [formStartTime] = useState(Date.now());
     const [availableTimes, setAvailableTimes]= useState([]);
     const [isSubmitting, setIsSubmitting]= useState(false);
+    const [cancelToken, setCancelToken] = useState('');
 
     // DÍAS DE LA SEMANA
     const daysMap =['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -131,6 +132,7 @@ export default function PublicBookingPage({ clinicId }) {
         try {
             const newApptId = "appt_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
             const newPatientId = "pac_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+            const token = crypto.randomUUID();
 
             // Obtener user_id del psicólogo desde settings
             const { data: clinicData } = await supabase
@@ -148,8 +150,10 @@ export default function PublicBookingPage({ clinicId }) {
                 treatment: formData.reason || 'Consulta General (Agendado Online)',
                 duration: 60,
                 status: 'pendiente',
-                user_id: clinicData?.user_id || null
+                user_id: clinicData?.user_id || null,
+                cancel_token: token
             });
+            if (!apptError) setCancelToken(token);
             if (apptError) throw apptError;
             
             // B. Creamos la ficha base del paciente
@@ -267,7 +271,18 @@ export default function PublicBookingPage({ clinicId }) {
                         <p className="text-sm font-bold text-gray-500">
                             Hemos recibido tu solicitud para el <br/><span className="text-soft-dark text-lg">{formData.date.split('-').reverse().join('/')} a las {formData.time}</span>.
                         </p>
-                        <p className="text-xs text-gray-400 mt-6 uppercase tracking-widest">La profesional te contactará para confirmar.</p>
+                        <p className="text-xs text-gray-400 mt-4 uppercase tracking-widest">La profesional te contactará para confirmar.</p>
+                        {cancelToken && (
+                            <div className="bg-warm-white rounded-2xl p-4 mt-5 border border-pastel-pink/50 text-left">
+                                <p className="text-xs text-gray-400 mb-2 font-medium">¿Necesitas cancelar?</p>
+                                <a
+                                    href={`${window.location.origin}?cancelar=${cancelToken}`}
+                                    className="text-sage-green text-sm font-bold hover:underline"
+                                >
+                                    Cancelar mi reserva →
+                                </a>
+                            </div>
+                        )}
                     </div>
                 )}
             </Card>

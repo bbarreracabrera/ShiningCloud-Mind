@@ -16,6 +16,7 @@ import AgendaView from './components/AgendaView';
 import Sidebar from './components/layout/Sidebar'; 
 import PatientWorkspace from './components/PatientWorkspace'; 
 import PublicBookingPage from './components/PublicBookingPage';
+import CancelBooking from './components/CancelBooking';
 
 import ApptModal from './components/ApptModal';
 import OnboardingModal from './components/OnboardingModal';
@@ -294,10 +295,15 @@ export default function App() {
   // Revisamos si la URL tiene el parámetro de reserva
   const urlParams = new URLSearchParams(window.location.search);
   const reservaId = urlParams.get('reserva');
+  const cancelToken = urlParams.get('cancelar');
+
+  // Si es una URL de cancelación, mostramos el componente SIN pedir login
+  if (cancelToken) {
+      return <CancelBooking token={cancelToken} />;
+  }
 
   // Si es una URL de reserva, mostramos el portal público SIN pedir login
   if (reservaId) {
-      // Importaremos este componente en el siguiente paso
       return <PublicBookingPage clinicId={reservaId} />;
   }
 
