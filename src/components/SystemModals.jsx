@@ -67,7 +67,7 @@ export const TermsScreen = ({ theme }) => {
 };
 
 // --- EL BUSCADOR INTELIGENTE (Pacientes) ---
-export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar Paciente..." }) => {
+export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar por nombre, RUT o teléfono..." }) => {
     const [query, setQuery] = useState('');
     const [showResults, setShowResults] = useState(false);
     const [dbResults, setDbResults] = useState([]);
@@ -86,8 +86,8 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
             const { data, error } = await supabase
                 .from('patients')
                 .select('*')
-                .ilike('name', `%${query}%`)
-                .limit(10); 
+                .or(`name.ilike.%${query}%,personal->>rut.ilike.%${query}%,personal->>phone.ilike.%${query}%`)
+                .limit(10);
             
             if (error) {
                 console.error("Error buscando en Supabase:", error);
@@ -106,7 +106,13 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
 
     const combinedResults = useMemo(() => { 
         if (!query) return []; 
-        const local = Object.values(patients).filter(p => p.personal?.legalName?.toLowerCase().includes(query.toLowerCase())); 
+        const q = query.toLowerCase();
+        const local = Object.values(patients).filter(p => {
+            const name = (p.personal?.legalName || '').toLowerCase();
+            const rut = (p.personal?.rut || '').toLowerCase();
+            const phone = (p.personal?.phone || '').toLowerCase();
+            return name.includes(q) || rut.includes(q) || phone.includes(q);
+        });
         const all = [...local, ...dbResults];
         const unique = Array.from(new Map(all.map(item => [item.id, item])).values());
         return unique;
