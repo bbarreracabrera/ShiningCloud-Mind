@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Trash2, MessageCircle, Brain } from 'lucide-react';
 import { Card, Button } from './UIComponents';
 import { PatientSelect } from './SystemModals';
@@ -9,6 +9,8 @@ export default function ApptModal({
     getPatient, savePatientData, notify, appointments, setAppointments,
     saveToSupabase, sendWhatsApp, getPatientPhone, session
 }) {
+    const [error, setError] = useState('');
+
     return (
         <div className="fixed inset-0 z-[100] bg-[#312923]/40 backdrop-blur-sm flex items-center justify-center p-4">
             <Card className="w-full max-w-md shadow-2xl p-8 space-y-6 bg-white/95 border-[#DFD2C4]/50 rounded-[2.5rem] animate-in zoom-in-95 duration-200">
@@ -94,15 +96,17 @@ export default function ApptModal({
                             notify("Sesión eliminada de la agenda");
                         }}><Trash2 size={20}/></button>
                     )}
+                    {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
                     <button className="flex-1 px-5 py-3.5 bg-[#5B6651] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:-translate-y-0.5 transition-all" onClick={async () => {
                         if(!newAppt.patient_name) {
-                            alert("Por favor, selecciona o crea un consultante.");
+                            setError('Por favor selecciona un paciente.');
                             return;
                         }
                         if(!newAppt.date || !newAppt.time) {
-                            alert("Por favor, define la fecha y la hora.");
+                            setError('Por favor define la fecha y la hora.');
                             return;
                         }
+                        setError('');
                         const id = newAppt.id || "appt_" + Date.now();
                         const data = {...newAppt, id, user_id: session?.user?.id};
                         await saveToSupabase('appointments', id, data);

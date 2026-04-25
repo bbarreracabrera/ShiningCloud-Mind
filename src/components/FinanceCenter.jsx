@@ -102,12 +102,11 @@ export default function FinanceCenter({
 
     // --- ACCIÓN DE ABONAR/PAGAR SESIÓN ---
     const handleQuickPayment = async (record, pending) => {
-        const abonoStr = window.prompt(`Registrar pago para ${record.patientName}.\nSaldo Pendiente: $${pending.toLocaleString()}\n\nIngresa el monto a abonar:`, pending);
-        if(!abonoStr) return;
-        
-        const abono = Number(abonoStr);
-        if (isNaN(abono) || abono <= 0) return alert("Monto inválido");
-        if (abono > pending) return alert("No puedes abonar más del saldo pendiente");
+        const monto = window.prompt(`Registrar pago para ${record.patientName}.\nSaldo Pendiente: $${pending.toLocaleString()}\n\nIngresa el monto a abonar:`, pending);
+        if (monto === null) return;
+        const abono = Number(monto);
+        if (isNaN(abono) || abono <= 0) { notify('Ingresa un monto válido mayor a 0'); return; }
+        if (abono > pending) { notify('El monto no puede superar el saldo pendiente'); return; }
 
         const newPayment = { id: Date.now().toString(), amount: abono, date: getLocalDate(), method: 'Transferencia/Efectivo' };
         const updatedRecord = { ...record, payments: [...(record.payments || []), newPayment] };

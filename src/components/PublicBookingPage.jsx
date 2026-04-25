@@ -25,11 +25,10 @@ export default function PublicBookingPage({ clinicId }) {
         const fetchClinic = async () => {
             try {
                 // Obtenemos la configuración de la clínica para saber sus horarios
-                const { data, error } = await supabase.from('settings').select('data').eq('id', 'general').maybeSingle();
-                if (data && data.data) {
-                    setClinicConfig(data.data);
+                const { data: settingsData } = await supabase.from('settings').select('data, user_id').eq('user_id', clinicId).maybeSingle();
+                if (settingsData?.data) {
+                    setClinicConfig(settingsData.data);
                 } else {
-                    // Fallback temporal por si no hay configuración guardada aún
                     setClinicConfig({ name: `Psic. ${clinicId.replace('-', ' ')}`, schedule: null });
                 }
             } catch (err) {
