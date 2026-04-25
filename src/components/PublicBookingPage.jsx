@@ -100,12 +100,13 @@ export default function PublicBookingPage({ clinicId }) {
                 // Filtramos las horas que chocan con citas existentes
                 allSlots = allSlots.filter(slot => {
                     const slotStart = toMins(slot);
-                    const slotEnd = slotStart + 60; 
+                    const slotEnd = slotStart + 60;
 
                     const isOccupied = appts.some(appt => {
                         if (!appt.time) return false;
                         const apptStart = toMins(appt.time);
-                        const apptEnd = apptStart + (Number(appt.duration) || 60);
+                        const duration = Number(appt.duration) || 60;
+                        const apptEnd = apptStart + duration;
                         return slotStart < apptEnd && slotEnd > apptStart;
                     });
                     return !isOccupied;
@@ -128,8 +129,8 @@ export default function PublicBookingPage({ clinicId }) {
 
         setIsSubmitting(true);
         try {
-            const newApptId = "appt_" + Date.now().toString();
-            const newPatientId = `pac_${Date.now().toString()}`;
+            const newApptId = "appt_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+            const newPatientId = "pac_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
 
             // Obtener user_id del psicólogo desde settings
             const { data: clinicData } = await supabase

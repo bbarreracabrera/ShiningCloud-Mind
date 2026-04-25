@@ -198,6 +198,12 @@ export default function App() {
 
   const saveTimer = useRef(null);
 
+  useEffect(() => {
+      return () => {
+          if (saveTimer.current) clearTimeout(saveTimer.current);
+      };
+  }, []);
+
   const savePatientData = useCallback(async (id, dataObj) => {
       setPatientRecords(prev => ({...prev, [id]: dataObj}));
       if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -365,7 +371,7 @@ export default function App() {
                             if (!session?.user?.id) { notify("Debes iniciar sesión para crear pacientes."); return; }
                             let nombreReal = p.name;
                             if (!nombreReal || nombreReal.trim() === "") { nombreReal = window.prompt("Confirma el nombre del nuevo consultante:"); if (!nombreReal) return; }
-                            const newId = "pac_" + Date.now().toString();
+                            const newId = "pac_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
                             const newPatient = getPatient(newId);
                             newPatient.id = newId; newPatient.personal.legalName = nombreReal;
                             savePatientData(newId, newPatient);

@@ -60,7 +60,7 @@ export const useClinicData = ({
                 }
             } catch (error) {
                 console.error("Error descargando los datos de la clínica:", error);
-                if (setConfigLoaded) setConfigLoaded(true); // desbloquear onboarding aunque falle
+                if (isMounted && setConfigLoaded) setConfigLoaded(true); // desbloquear onboarding aunque falle
             }
         };
 
