@@ -21,6 +21,7 @@ import MPOAuthCallback from './components/MPOAuthCallback';
 import ImportPatientsModal from './components/ImportPatientsModal';
 import WelcomeTour from './components/WelcomeTour';
 import AuditLogView from './components/AuditLogView';
+import LegalText from './components/LegalText';
 
 import ApptModal from './components/ApptModal';
 import OnboardingModal from './components/OnboardingModal';
@@ -409,6 +410,16 @@ export default function App() {
         {activeTab === 'settings' && <SettingsView themeMode={themeMode} t={t} config={config} setConfigLocal={setConfigLocal} userRole={userRole} saveToSupabase={saveToSupabase} notify={notify} team={team} setTeam={setTeam} newMember={{}} setNewMember={()=>{}} session={session} setActiveTab={setActiveTab} />}
 
         {activeTab === 'auditoria' && <AuditLogView session={session} />}
+
+        {activeTab === 'terms' && (
+            <div className="max-w-4xl mx-auto space-y-6 animate-in slide-in-from-bottom">
+                <div className="border-b border-pastel-pink/50 pb-5">
+                    <p className="text-[11px] font-black text-[#9A8F84] uppercase tracking-widest mb-1">Información Legal</p>
+                    <h2 className="text-4xl font-black text-soft-dark tracking-tight">Términos y Privacidad</h2>
+                </div>
+                <LegalText />
+            </div>
+        )}
         
         {(activeTab === 'finance' || activeTab === 'history') && (
             <FinanceCenter
