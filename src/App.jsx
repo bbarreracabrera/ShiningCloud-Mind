@@ -420,10 +420,15 @@ export default function App() {
         )}
 
         {(activeTab === 'reports' || activeTab === 'informes') && (
-            <ReportsView 
-                themeMode={themeMode} patientRecords={patientRecords} 
-                getPatient={getPatient} savePatientData={savePatientData} 
-                notify={notify} generatePDF={generatePDF} 
+            <ReportsView
+                themeMode={themeMode} patientRecords={patientRecords}
+                getPatient={getPatient} savePatientData={savePatientData}
+                notify={notify}
+                generatePDF={(type, data) => {
+                    const patientId = data?.patient_id || data?.patientId || selectedPatientId;
+                    logAction('pdf_generated', { resource_type: 'pdf', pdf_type: type }, patientId);
+                    generatePDF(type, data, { themeMode, config, selectedPatientId: patientId, getPatient, patientRecords, notify });
+                }}
             />
         )}
 
