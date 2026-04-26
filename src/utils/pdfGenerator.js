@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
 export const generatePDF = (type, data = null, context = {}) => {
-    if (!context || !context.config) {
+    if ((!context || !context.config) && type !== 'receipt') {
         console.error('generatePDF: contexto inválido', context);
         return;
     }
@@ -22,7 +22,7 @@ export const generatePDF = (type, data = null, context = {}) => {
 
     const patient = getPatient ? getPatient(selectedPatientId) : null;
 
-    if (!patient && type !== 'rx' && type !== 'report') {
+    if (!patient && type !== 'rx' && type !== 'report' && type !== 'receipt') {
         console.error('generatePDF: paciente no encontrado para tipo', type);
         return;
     }
@@ -184,6 +184,60 @@ export const generatePDF = (type, data = null, context = {}) => {
             doc.setFont("helvetica", "bold");
             doc.setTextColor(...TAUPE);
             doc.text("Firma y Timbre del Profesional", 155, 253, { align: 'center' });
+            if (config.name) {
+                doc.setFont("helvetica", "normal");
+                doc.text(config.name, 155, 258, { align: 'center' });
+            }
+            if (config.rut) doc.text(`RUT: ${config.rut}`, 155, 262, { align: 'center' });
+        }
+
+        else if (type === 'receipt' && data) {
+            doc.setFontSize(20);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(...ESPRESSO);
+            doc.text("RECIBO DE PAGO", 105, 80, { align: 'center' });
+
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(...TAUPE);
+            doc.text(`N° ${data.id || 'S/N'}`, 105, 88, { align: 'center' });
+            doc.text(`Fecha: ${data.date || currentDate}`, 105, 94, { align: 'center' });
+
+            doc.setDrawColor(...LIGHT_TAUPE);
+            doc.line(15, 100, 195, 100);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("RECIBÍ DE:", 20, 115);
+            doc.setFont("helvetica", "normal");
+            doc.text(data.patientName || 'Paciente', 20, 122);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("POR CONCEPTO DE:", 20, 138);
+            doc.setFont("helvetica", "normal");
+            doc.text(data.description || 'Sesión psicológica', 20, 145);
+
+            doc.setFontSize(28);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(...ESPRESSO);
+            const amount = Number(data.amount || 0).toLocaleString('es-CL');
+            doc.text(`$${amount}`, 105, 175, { align: 'center' });
+
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(...TAUPE);
+            doc.text("(Pesos Chilenos)", 105, 182, { align: 'center' });
+
+            if (data.method) {
+                doc.setFontSize(9);
+                doc.text(`Método de pago: ${data.method}`, 20, 200);
+            }
+
+            doc.setDrawColor(...TAUPE);
+            doc.line(120, 248, 190, 248);
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "bold");
+            doc.text("Firma del Profesional", 155, 253, { align: 'center' });
             if (config.name) {
                 doc.setFont("helvetica", "normal");
                 doc.text(config.name, 155, 258, { align: 'center' });

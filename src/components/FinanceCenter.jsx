@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { generatePDF } from '../utils/pdfGenerator';
 
 const calcPaid = (rec) => {
     if (rec.payments?.length > 0) {
@@ -13,9 +14,9 @@ import { PatientSelect } from './SystemModals';
 import { getLocalDate } from '../constants'; 
 import { supabase } from '../supabase';
 
-export default function FinanceCenter({ 
-    themeMode, t, financialRecords, setFinancialRecords, 
-    patientRecords, saveToSupabase, notify, userRole, session, clinicOwner
+export default function FinanceCenter({
+    themeMode, t, financialRecords, setFinancialRecords,
+    patientRecords, saveToSupabase, notify, userRole, session, clinicOwner, config = {}
 }) {
     // --- ESTADOS LOCALES ---
     const [financeTab, setFinanceTab] = useState('resumen');
@@ -236,24 +237,50 @@ export default function FinanceCenter({
                                 const pending = (Number(h.total) || 0) - paid;
                                 
                                 return (
-                                    <div key={h.id} onClick={() => pending > 0 ? handleQuickPayment(h, pending) : null} className={`group flex flex-col md:flex-row justify-between md:items-center p-6 bg-white rounded-3xl border transition-all ${pending > 0 ? 'border-[#CBAAA2]/60 hover:border-[#CBAAA2] cursor-pointer hover:shadow-md' : 'border-[#DFD2C4]/40 opacity-80 cursor-default'}`}>
-                                        <div className="flex items-center gap-5 mb-4 md:mb-0">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black ${pending <= 0 ? 'bg-[#5B6651]/10 text-[#5B6651]' : 'bg-[#CBAAA2]/10 text-[#CBAAA2]'}`}>
-                                                {h.patientName ? h.patientName.charAt(0).toUpperCase() : '?'}
+                                    <div key={h.id} className={`group bg-white rounded-3xl border transition-all ${pending > 0 ? 'border-[#CBAAA2]/60 hover:border-[#CBAAA2] hover:shadow-md' : 'border-[#DFD2C4]/40 opacity-80'}`}>
+                                        <div onClick={() => pending > 0 ? handleQuickPayment(h, pending) : null} className={`flex flex-col md:flex-row justify-between md:items-center p-6 ${pending > 0 ? 'cursor-pointer' : 'cursor-default'}`}>
+                                            <div className="flex items-center gap-5 mb-4 md:mb-0">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black ${pending <= 0 ? 'bg-[#5B6651]/10 text-[#5B6651]' : 'bg-[#CBAAA2]/10 text-[#CBAAA2]'}`}>
+                                                    {h.patientName ? h.patientName.charAt(0).toUpperCase() : '?'}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-[#312923] text-lg">{h.patientName || 'Consultante Anónimo'}</p>
+                                                    <p className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest mt-1">
+                                                        {h.date} • {h.description || 'Sesión Psicológica'} • Costo Total: ${(Number(h.total)||0).toLocaleString()}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-black text-[#312923] text-lg">{h.patientName || 'Consultante Anónimo'}</p>
-                                                <p className="text-[10px] font-bold text-[#9A8F84] uppercase tracking-widest mt-1">
-                                                    {h.date} • {h.description || 'Sesión Psicológica'} • Costo Total: ${(Number(h.total)||0).toLocaleString()}
+                                            <div className="text-left md:text-right flex md:block justify-between items-end md:items-start pl-17 md:pl-0">
+                                                <p className={`font-black text-2xl tracking-tighter ${pending <= 0 ? 'text-[#5B6651]' : 'text-[#CBAAA2]'}`}>
+                                                    {pending <= 0 ? 'PAGADO' : `FALTAN $${pending.toLocaleString()}`}
                                                 </p>
+                                                {pending > 0 && <span className="text-[9px] font-black text-[#9A8F84] uppercase tracking-widest bg-[#FDFBF7] px-3 py-1 rounded-full border border-[#DFD2C4]/50 md:mt-2 inline-block transition-colors group-hover:bg-[#CBAAA2] group-hover:text-white group-hover:border-[#CBAAA2]">Abonar / Pagar</span>}
                                             </div>
                                         </div>
-                                        <div className="text-left md:text-right flex md:block justify-between items-end md:items-start pl-17 md:pl-0">
-                                            <p className={`font-black text-2xl tracking-tighter ${pending <= 0 ? 'text-[#5B6651]' : 'text-[#CBAAA2]'}`}>
-                                                {pending <= 0 ? 'PAGADO' : `FALTAN $${pending.toLocaleString()}`}
-                                            </p>
-                                            {pending > 0 && <span className="text-[9px] font-black text-[#9A8F84] uppercase tracking-widest bg-[#FDFBF7] px-3 py-1 rounded-full border border-[#DFD2C4]/50 md:mt-2 inline-block transition-colors group-hover:bg-[#CBAAA2] group-hover:text-white group-hover:border-[#CBAAA2]">Abonar / Pagar</span>}
-                                        </div>
+                                        {h.payments?.length > 0 && (
+                                            <div className="px-6 pb-4 pt-3 border-t border-[#DFD2C4]/40 space-y-2">
+                                                {h.payments.map(payment => (
+                                                    <div key={payment.id} className="flex justify-between items-center">
+                                                        <span className="text-[10px] font-bold text-[#9A8F84]">
+                                                            {payment.date} — ${Number(payment.amount).toLocaleString()} — {payment.method}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => generatePDF('receipt', {
+                                                                id: payment.id,
+                                                                date: payment.date,
+                                                                patientName: h.patientName,
+                                                                description: h.description || 'Sesión psicológica',
+                                                                amount: payment.amount,
+                                                                method: payment.method
+                                                            }, { config })}
+                                                            className="text-[#5B6651] text-[10px] font-black hover:underline uppercase tracking-widest"
+                                                        >
+                                                            📄 Recibo
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })

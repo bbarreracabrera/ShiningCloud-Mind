@@ -353,11 +353,11 @@ export default function App() {
         {activeTab === 'settings' && <SettingsView themeMode={themeMode} t={t} config={config} setConfigLocal={setConfigLocal} userRole={userRole} saveToSupabase={saveToSupabase} notify={notify} team={team} setTeam={setTeam} newMember={{}} setNewMember={()=>{}} />}
         
         {(activeTab === 'finance' || activeTab === 'history') && (
-            <FinanceCenter 
+            <FinanceCenter
                 financialRecords={financialRecords} setFinancialRecords={setFinancialRecords}
                 patientRecords={patientRecords} saveToSupabase={saveToSupabase}
                 notify={notify} session={session} clinicOwner={clinicOwner}
-                themeMode={themeMode} t={t}
+                themeMode={themeMode} t={t} config={config}
             />
         )}
 
