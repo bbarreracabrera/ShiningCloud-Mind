@@ -8,6 +8,7 @@ export default function PublicBookingPage({ clinicId }) {
 // ESTADOS DEL SISTEMA
     const [loading, setLoading]= useState(true);
     const [clinicConfig, setClinicConfig]= useState(null);
+    const [clinicUserId, setClinicUserId]= useState(null);
     
     // ESTADOS DEL FORMULARIO
     const [step, setStep]= useState(1);
@@ -25,12 +26,14 @@ export default function PublicBookingPage({ clinicId }) {
     useEffect(() => {
         const fetchClinic = async () => {
             try {
-                // Obtenemos la configuración de la clínica para saber sus horarios
-                const { data: settingsData } = await supabase.from('settings').select('data, user_id').eq('user_id', clinicId).maybeSingle();
+                // Buscamos por publicSlug dentro del JSONB
+                const { data: settingsData } = await supabase.from('settings').select('data, user_id').eq('data->>publicSlug', clinicId).maybeSingle();
                 if (settingsData?.data) {
                     setClinicConfig(settingsData.data);
+                    setClinicUserId(settingsData.user_id || null);
                 } else {
                     setClinicConfig({ name: `Psic. ${clinicId.replace('-', ' ')}`, schedule: null });
+                    setClinicUserId(null);
                 }
             } catch (err) {
                 console.error("Error cargando clínica:", err);
@@ -84,11 +87,10 @@ export default function PublicBookingPage({ clinicId }) {
         }
 
         try {
-            // Buscamos las citas que ya existen ese día usando nuestras columnas ESTRICTAS
-            const { data: appts, error } = await supabase
-                .from('appointments')
-                .select('time, duration')
-                .eq('date', dateStr);
+            // Buscamos las citas que ya existen ese día para este psicólogo
+            let apptQuery = supabase.from('appointments').select('time, duration').eq('date', dateStr);
+            if (clinicUserId) apptQuery = apptQuery.eq('user_id', clinicUserId);
+            const { data: appts, error } = await apptQuery;
             
             if (error) throw error;
 
@@ -134,23 +136,16 @@ export default function PublicBookingPage({ clinicId }) {
             const newPatientId = "pac_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
             const token = crypto.randomUUID();
 
-            // Obtener user_id del psicólogo desde settings
-            const { data: clinicData } = await supabase
-                .from('settings')
-                .select('user_id')
-                .eq('id', clinicId)
-                .single();
-
-            // A. Guardamos la cita (Esquema estricto sin dar error 400)
+            // A. Guardamos la cita usando clinicUserId ya disponible en estado
             const { error: apptError } = await supabase.from('appointments').insert({
                 id: newApptId,
+                user_id: clinicUserId,
+                patient_name: formData.name,
                 date: formData.date,
                 time: formData.time,
-                patient_name: formData.name,
                 treatment: formData.reason || 'Consulta General (Agendado Online)',
                 duration: 60,
                 status: 'pendiente',
-                user_id: clinicData?.user_id || null,
                 cancel_token: token
             });
             if (!apptError) setCancelToken(token);
