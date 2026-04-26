@@ -116,15 +116,6 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [session?.user?.id, showOnboarding, config?.name, config?.tour_completed]);
 
-  const handleTourComplete = useCallback(async () => {
-    setRunTour(false);
-    if (config && session?.user?.id) {
-      const updatedConfig = { ...config, tour_completed: true };
-      setConfigLocal(updatedConfig);
-      await saveToSupabase('settings', session.user.id, updatedConfig);
-    }
-  }, [config, session, saveToSupabase]);
-
   const notify = (m) => toast.success(m, { 
       style: { borderRadius: '12px', background: '#fadadd', color: '#4a4a4b', border: '1px solid rgba(250,218,221,0.5)', fontWeight: 'bold', fontSize: '13px' },
       iconTheme: { primary: '#a5bda3', secondary: '#fff' }
@@ -174,7 +165,7 @@ export default function App() {
 // ==========================================
   // 💾 MOTOR DE GUARDADO EN BASE DE DATOS
   // ==========================================
-  const saveToSupabase = async (tableName, id, dataObj) => {
+  const saveToSupabase = useCallback(async (tableName, id, dataObj) => {
       if (!session?.user?.id) {
           console.warn('saveToSupabase llamado sin sesión activa');
           return false;
@@ -215,8 +206,17 @@ export default function App() {
           console.error("🚨 Error crítico de código al guardar:", err);
           return false;
       }
-  };
-  
+  }, [session]);
+
+  const handleTourComplete = useCallback(async () => {
+    setRunTour(false);
+    if (config && session?.user?.id) {
+      const updatedConfig = { ...config, tour_completed: true };
+      setConfigLocal(updatedConfig);
+      await saveToSupabase('settings', session.user.id, updatedConfig);
+    }
+  }, [config, session, saveToSupabase]);
+
   const getPatient = useCallback((id) => {
       const base = { 
         id, 
