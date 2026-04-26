@@ -171,6 +171,7 @@ export default function PublicBookingPage({ clinicId }) {
             if (requirePayment) {
                 const { data: payData } = await supabase.functions.invoke('create-payment', {
                     body: {
+                        psicologoUserId: clinicUserId,
                         appointmentId: newApptId,
                         amount: clinicConfig.sessionPrice,
                         description: `Sesión psicológica - ${clinicConfig.name || 'Consulta'}`,

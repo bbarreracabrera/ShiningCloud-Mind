@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Shield, Plus, Trash2, Settings, UserPlus, Save, Building2, FileSignature, Percent, Clock, CalendarDays, Link, Copy, Network, Phone, Mail, MessageCircle } from 'lucide-react';
+import { Camera, Shield, Plus, Trash2, Settings, UserPlus, Save, Building2, FileSignature, Percent, Clock, CalendarDays, Link, Copy, Network, Phone, Mail, MessageCircle, ExternalLink, CheckCircle } from 'lucide-react';
 import { Card } from './UIComponents';
 import { formatRUT } from '../constants';
 import { supabase } from '../supabase';
@@ -198,6 +198,46 @@ export default function SettingsView({
                             <h3 className="font-black text-xl text-[#312923] mb-6 flex items-center gap-2 border-b border-[#DFD2C4]/50 pb-4">
                                 <Percent className="text-[#5B6651]"/> Pagos Online
                             </h3>
+
+                            {/* Cuenta MP */}
+                            {config.mp_user_id ? (
+                                <div className="flex items-center justify-between p-5 bg-[#5B6651]/5 rounded-2xl border border-[#5B6651]/20 mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <CheckCircle size={20} className="text-[#5B6651] shrink-0" />
+                                        <div>
+                                            <p className="font-black text-sm text-[#312923]">Cuenta MercadoPago conectada</p>
+                                            {config.mp_email && <p className="text-[10px] text-[#9A8F84] font-bold mt-0.5">{config.mp_email}</p>}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setConfigLocal({ ...config, mp_user_id: null, mp_email: null, mp_access_token: null })}
+                                        className="text-[10px] font-black uppercase tracking-widest text-[#CBAAA2] hover:text-red-500 transition-colors"
+                                    >
+                                        Desconectar
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="p-5 bg-[#FDFBF7] rounded-2xl border border-[#DFD2C4]/60 mb-6">
+                                    <p className="text-sm font-bold text-[#312923] mb-1">Cuenta de MercadoPago</p>
+                                    <p className="text-[11px] text-[#9A8F84] font-medium mb-4">
+                                        Conecta tu cuenta de MercadoPago para recibir los pagos de tus pacientes directamente.
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            const url = new URL('https://auth.mercadopago.cl/authorization');
+                                            url.searchParams.set('client_id', import.meta.env.VITE_MP_CLIENT_ID || '');
+                                            url.searchParams.set('response_type', 'code');
+                                            url.searchParams.set('platform_id', 'mp');
+                                            url.searchParams.set('state', session?.user?.id || '');
+                                            url.searchParams.set('redirect_uri', `${window.location.origin}/oauth/mercadopago/callback`);
+                                            window.location.href = url.toString();
+                                        }}
+                                        className="flex items-center gap-2 px-5 py-3 bg-[#009EE3] text-white font-black text-[11px] uppercase tracking-widest rounded-xl hover:bg-[#0080ba] transition-all shadow-md"
+                                    >
+                                        <ExternalLink size={14} /> Conectar MercadoPago
+                                    </button>
+                                </div>
+                            )}
 
                             <div className="flex items-center justify-between p-5 bg-[#FDFBF7] rounded-2xl border border-[#DFD2C4]/60 mb-4">
                                 <div>

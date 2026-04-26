@@ -17,6 +17,7 @@ import Sidebar from './components/layout/Sidebar';
 import PatientWorkspace from './components/PatientWorkspace'; 
 import PublicBookingPage from './components/PublicBookingPage';
 import CancelBooking from './components/CancelBooking';
+import MPOAuthCallback from './components/MPOAuthCallback';
 import ImportPatientsModal from './components/ImportPatientsModal';
 
 import ApptModal from './components/ApptModal';
@@ -314,6 +315,11 @@ export default function App() {
   // Si es una URL de cancelación, mostramos el componente SIN pedir login
   if (cancelToken) {
       return <CancelBooking token={cancelToken} />;
+  }
+
+  // Callback de OAuth de MercadoPago
+  if (window.location.pathname === '/oauth/mercadopago/callback') {
+      return <MPOAuthCallback />;
   }
 
   // Si es una URL de reserva, mostramos el portal público SIN pedir login
