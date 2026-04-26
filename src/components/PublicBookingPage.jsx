@@ -155,12 +155,6 @@ export default function PublicBookingPage({ clinicId }) {
             if (!clinicUserId) {
                 console.error('clinicUserId es null, no se puede crear paciente');
             } else {
-                console.log('Insertando paciente con payload:', {
-                    id: newPatientId,
-                    user_id: clinicUserId,
-                    name: formData.name,
-                    personal: { legalName: formData.name, phone: formData.phone, rut: formData.rut }
-                });
                 const { error: patientError } = await supabase.from('patients').insert({
                     id: newPatientId,
                     user_id: clinicUserId,
