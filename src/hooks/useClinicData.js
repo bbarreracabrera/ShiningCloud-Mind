@@ -55,7 +55,14 @@ export const useClinicData = ({
                     .maybeSingle();
                 if (settingsError) console.error('Error cargando configuración:', settingsError);
                 if (isMounted) {
-                    if (settingsData?.data) setConfigLocal(settingsData.data);
+                    if (settingsData?.data) {
+                        let configToSet = settingsData.data;
+                        if (!configToSet.email && session?.user?.email) {
+                            configToSet = { ...configToSet, email: session.user.email };
+                            supabase.from('settings').update({ data: configToSet }).eq('user_id', uid);
+                        }
+                        setConfigLocal(configToSet);
+                    }
                     if (setConfigLoaded) setConfigLoaded(true);
                 }
             } catch (error) {

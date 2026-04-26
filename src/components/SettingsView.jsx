@@ -6,7 +6,7 @@ import { supabase } from '../supabase';
 
 export default function SettingsView({
     themeMode, t, config, setConfigLocal, logoInputRef, handleLogoUpload,
-    userRole, saveToSupabase, notify, team, setTeam, newMember, setNewMember
+    userRole, saveToSupabase, notify, team, setTeam, newMember, setNewMember, session
 }) {
     const inputClass = "w-full p-4 rounded-2xl bg-[#FDFBF7] border border-[#DFD2C4] outline-none font-bold text-[#312923] focus:border-[#5B6651] transition-colors shadow-sm";
     const labelClass = "text-[10px] font-black uppercase tracking-widest text-[#9A8F84] ml-2 mb-2 block";
@@ -64,7 +64,7 @@ export default function SettingsView({
                         onClick={async () => {
                             setSaving(true);
                             try {
-                                const configToSave = { ...config, schedule: config.schedule || defaultSchedule };
+                                const configToSave = { ...config, schedule: config.schedule || defaultSchedule, email: session?.user?.email };
                                 await saveToSupabase('settings', 'general', configToSave);
                                 notify("Ajustes Guardados con éxito");
                             } finally {
