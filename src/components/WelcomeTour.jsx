@@ -2,7 +2,6 @@ import React from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
 export default function WelcomeTour({ run, onComplete, setActiveTab, userId }) {
-    const TOUR_KEY = userId ? `tour_completed_${userId}` : 'tour_completed';
     const steps = [
         {
             target: 'body',
@@ -57,24 +56,28 @@ export default function WelcomeTour({ run, onComplete, setActiveTab, userId }) {
 
     const handleCallback = (data) => {
         const { status, type, index, action } = data;
+        const TOUR_KEY = userId ? `tour_completed_${userId}` : 'tour_completed';
 
         if (type === 'step:before') {
             const tabsByStep = {
-                1: 'dashboard',
-                2: 'agenda',
-                3: 'ficha',
-                4: 'informes',
-                5: 'finance',
-                6: 'settings',
+                1: 'dashboard', 2: 'agenda', 3: 'ficha',
+                4: 'informes', 5: 'finance', 6: 'settings',
             };
-
             if (setActiveTab && tabsByStep[index] !== undefined) {
                 setActiveTab(tabsByStep[index]);
             }
         }
 
-        if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-            localStorage.setItem(TOUR_KEY, 'true');
+        const finishStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+        const closeActions = ['close', 'reset', 'stop'];
+
+        if (finishStatuses.includes(status) || closeActions.includes(action)) {
+            try {
+                localStorage.setItem(TOUR_KEY, 'true');
+                console.log('Tour marcado como completado:', TOUR_KEY);
+            } catch(e) {
+                console.error('Error guardando localStorage:', e);
+            }
             onComplete && onComplete();
         }
     };
