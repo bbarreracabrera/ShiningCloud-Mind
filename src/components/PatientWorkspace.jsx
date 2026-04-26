@@ -89,19 +89,19 @@ export default function PatientWorkspace({
             })()}
 
             {/* --- NAVEGACIÓN DE PESTAÑAS --- */}
-            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar border-b border-[#DFD2C4]/30 hide-scrollbar">
+            <div className="flex gap-1.5 md:gap-2 overflow-x-auto pb-2 border-b border-[#DFD2C4]/30" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {tabButtons.map(b => {
                     if (userRole === 'secretary' && b.restricted) return null;
                     const isActive = patientTab === b.id;
                     return (
-                        <button 
-                            key={b.id} 
-                            onClick={() => setPatientTab(b.id)} 
-                            className={`px-5 py-3 rounded-t-2xl text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2 border-b-2 ${
+                        <button
+                            key={b.id}
+                            onClick={() => setPatientTab(b.id)}
+                            className={`px-3 md:px-5 py-3 rounded-t-2xl text-[10px] md:text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 border-b-2 shrink-0 ${
                                 isActive ? 'bg-white text-[#5B6651] border-[#5B6651] shadow-[0_-4px_10px_rgba(91,102,81,0.05)]' : 'bg-[#FDFBF7] text-[#9A8F84] border-transparent hover:bg-white hover:text-[#6B615A]'
                             }`}
                         >
-                            <b.icon size={14} className={isActive ? 'text-[#5B6651]' : 'text-[#DFD2C4]'}/> {b.label}
+                            <b.icon size={13} className={isActive ? 'text-[#5B6651]' : 'text-[#DFD2C4]'}/> {b.label}
                         </button>
                     )
                 })}

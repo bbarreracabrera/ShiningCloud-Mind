@@ -51,24 +51,24 @@ export default function DashboardView({
             
             {/* --- MÉTRICAS FINANCIERAS (Simplificadas y Suaves) --- */}
             {userRole === 'admin' && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {/* Tarjeta Ingresos */}
                     <Card className="rounded-[2rem] border border-pastel-pink/30 bg-white shadow-sm hover:shadow-md transition-shadow p-6">
                         <div className="flex justify-between mb-6 items-start">
                             <div className="p-3 bg-sage-green/10 rounded-2xl text-sage-green"><DollarSign size={24} strokeWidth={2.5}/></div>
                             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-warm-white px-3 py-1 rounded-full">Ingresos</span>
                         </div>
-                        <h2 className="text-4xl font-black text-soft-dark tracking-tighter">${totalCollected?.toLocaleString() || '0'}</h2>
+                        <h2 className="text-2xl md:text-4xl font-black text-soft-dark tracking-tighter">${totalCollected?.toLocaleString() || '0'}</h2>
                         <p className="text-[11px] font-medium text-gray-400 mt-2">Mes actual</p>
                     </Card>
-                    
+
                     {/* Tarjeta Egresos */}
                     <Card className="rounded-[2rem] border border-pastel-pink/30 bg-white shadow-sm hover:shadow-md transition-shadow p-6">
                         <div className="flex justify-between mb-6 items-start">
                             <div className="p-3 bg-pastel-pink/30 rounded-2xl text-rose-400"><TrendingDown size={24} strokeWidth={2.5}/></div>
                             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-warm-white px-3 py-1 rounded-full">Egresos</span>
                         </div>
-                        <h2 className="text-4xl font-black text-soft-dark tracking-tighter">${totalExpenses?.toLocaleString() || '0'}</h2>
+                        <h2 className="text-2xl md:text-4xl font-black text-soft-dark tracking-tighter">${totalExpenses?.toLocaleString() || '0'}</h2>
                         <p className="text-[11px] font-medium text-gray-400 mt-2">Suscripciones y arriendo</p>
                     </Card>
                     
@@ -81,7 +81,7 @@ export default function DashboardView({
                             <div className="flex items-center gap-3 mb-2">
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Balance del Mes</span>
                             </div>
-                            <h2 className="text-6xl font-black mt-2 tracking-tighter text-soft-dark">${netProfit?.toLocaleString() || '0'}</h2>
+                            <h2 className="text-3xl md:text-6xl font-black mt-2 tracking-tighter text-soft-dark">${netProfit?.toLocaleString() || '0'}</h2>
                             <p className="text-xs font-medium text-gray-500 mt-4 uppercase tracking-widest border-t border-sage-green/20 pt-4 w-fit">Salud financiera de la consulta</p>
                         </div>
                     </div>
@@ -89,7 +89,7 @@ export default function DashboardView({
             )}
 
             {/* --- EL CORAZÓN CLÍNICO: NOTAS E INFORMES --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 
                 {/* Panel de Notas Pendientes */}
                 <Card className="p-6 rounded-[2rem] border border-pastel-pink/50 shadow-sm bg-white">
