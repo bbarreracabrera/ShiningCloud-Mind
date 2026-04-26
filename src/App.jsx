@@ -18,6 +18,7 @@ import PatientWorkspace from './components/PatientWorkspace';
 import PublicBookingPage from './components/PublicBookingPage';
 import CancelBooking from './components/CancelBooking';
 import MPOAuthCallback from './components/MPOAuthCallback';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import ImportPatientsModal from './components/ImportPatientsModal';
 import WelcomeTour from './components/WelcomeTour';
 import AuditLogView from './components/AuditLogView';
@@ -348,6 +349,12 @@ export default function App() {
 // ==========================================
   // 🔒 EL MURO DE ACCESO Y ENRUTAMIENTO
   // ==========================================
+  // Detectar flujo de reset de contraseña (hash #type=recovery de Supabase)
+  const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+  if (hashParams.get('type') === 'recovery') {
+      return <ResetPasswordPage />;
+  }
+
   // Revisamos si la URL tiene el parámetro de reserva
   const urlParams = new URLSearchParams(window.location.search);
   const reservaId = urlParams.get('reserva');
