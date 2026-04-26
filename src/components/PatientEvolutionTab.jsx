@@ -1,38 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileLock, PenTool, Clock, User, Brain } from 'lucide-react';
 
-export default function PatientEvolutionTab({ 
-    getPatient, selectedPatientId, savePatientData, session, logAction
+export default function PatientEvolutionTab({
+    getPatient, selectedPatientId, savePatientData, session, logAction, notify
 }) {
     const patient = getPatient(selectedPatientId);
-    
-    // Historial de sesiones
+
     const evolutions = patient.clinical?.evolution || [];
-    
-    // Estado local: ahora vive aquí, no en App.jsx (Mejora radical de rendimiento)
+
     const [newEvolution, setNewEvolution] = useState('');
+    const draftTimer = useRef(null);
+    const DRAFT_KEY = `evolution_draft_${selectedPatientId}`;
+
+    // Restaurar borrador al montar o cambiar de paciente
+    useEffect(() => {
+        setNewEvolution('');
+        const draft = localStorage.getItem(DRAFT_KEY);
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft);
+                const age = Date.now() - parsed.timestamp;
+                if (age < 7 * 24 * 60 * 60 * 1000 && parsed.text) {
+                    setNewEvolution(parsed.text);
+                    if (typeof notify === 'function') notify('Borrador restaurado del último intento');
+                }
+            } catch (e) {}
+        }
+    }, [selectedPatientId]);
+
+    // Autoguardar borrador mientras escribe (debounce 2s)
+    useEffect(() => {
+        if (!newEvolution) return;
+        if (draftTimer.current) clearTimeout(draftTimer.current);
+        draftTimer.current = setTimeout(() => {
+            localStorage.setItem(DRAFT_KEY, JSON.stringify({ text: newEvolution, timestamp: Date.now() }));
+        }, 2000);
+        return () => { if (draftTimer.current) clearTimeout(draftTimer.current); };
+    }, [newEvolution]);
 
     const handleSave = () => {
         if (!newEvolution.trim()) return;
-        
+
         const n = {
-            id: Date.now(), 
-            text: newEvolution, 
-            date: new Date().toLocaleString('es-CL'), 
+            id: Date.now(),
+            text: newEvolution,
+            date: new Date().toLocaleString('es-CL'),
             author: session?.user?.email || 'Terapeuta Titular'
-        }; 
-        
+        };
+
         savePatientData(selectedPatientId, {
-            ...patient, 
+            ...patient,
             clinical: {
-                ...patient.clinical, 
+                ...patient.clinical,
                 evolution: [n, ...evolutions]
             }
-        }); 
-        
-        setNewEvolution(''); 
-        if(typeof logAction === 'function') {
-            logAction('ADD_EVOLUTION', { text_preview: newEvolution.substring(0,20) }, selectedPatientId);
+        });
+
+        localStorage.removeItem(DRAFT_KEY);
+        setNewEvolution('');
+        if (typeof logAction === 'function') {
+            logAction('ADD_EVOLUTION', { text_preview: newEvolution.substring(0, 20) }, selectedPatientId);
         }
     };
 

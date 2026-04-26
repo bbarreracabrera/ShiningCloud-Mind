@@ -104,7 +104,7 @@ export default function PatientWorkspace({
                 
                 {patientTab === 'family_map' && <FamilyMapTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} notify={notify} />}              
                 
-                {patientTab === 'evolution' && <PatientEvolutionTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} session={session} logAction={logAction} />}
+                {patientTab === 'evolution' && <PatientEvolutionTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} session={session} logAction={logAction} notify={notify} />}
                 
                 {patientTab === 'consent' && <PatientConsentTab getPatient={getPatient} selectedPatientId={selectedPatientId} savePatientData={savePatientData} modal={modal} setModal={setModal} generatePDF={handleGeneratePDF} />}
                 
