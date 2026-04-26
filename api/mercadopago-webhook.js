@@ -82,5 +82,45 @@ export default async function handler(req, res) {
         }
     }
 
+    if (type === 'payment') {
+        try {
+            const mpRes = await fetch(
+                `https://api.mercadopago.com/v1/payments/${data.id}`,
+                { headers: { 'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}` }}
+            );
+            const payment = await mpRes.json();
+
+            if (payment.status !== 'approved') {
+                return res.status(200).json({ received: true });
+            }
+
+            const apptId = payment.external_reference;
+            if (!apptId || !apptId.startsWith('appt_')) {
+                return res.status(200).json({ received: true });
+            }
+
+            await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/appointments?id=eq.${apptId}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': process.env.SUPABASE_SERVICE_KEY,
+                        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`
+                    },
+                    body: JSON.stringify({
+                        status: 'agendado',
+                        payment_id: String(payment.id),
+                        payment_amount: payment.transaction_amount
+                    })
+                }
+            );
+
+            console.log('Cita confirmada por pago:', apptId);
+        } catch (error) {
+            console.error('Error procesando pago de cita:', error);
+        }
+    }
+
     return res.status(200).json({ received: true });
 }
