@@ -32,7 +32,7 @@ export default function DashboardView({
             
             {/* --- ENCABEZADO CÁLIDO --- */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-pastel-pink/50 pb-6 bg-gradient-to-r from-transparent to-warm-white rounded-3xl p-2">
-                <div>
+                <div className="ml-14 md:ml-0">
                     <div className="flex items-center gap-2 mb-2">
                         <Calendar size={14} className="text-sage-green"/>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{formattedDate}</p>
