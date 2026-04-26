@@ -10,24 +10,34 @@ export default function Sidebar({
     isWorkspaceActive // Recibimos la prop que nos dice si debemos colapsar (para la ficha)
 }) {
     // --- MENÚ DINÁMICO ---
+    const TOUR_IDS = {
+        dashboard: 'dashboard',
+        agenda: 'agenda',
+        ficha: 'pacientes',
+        informes: 'informes',
+        history: 'finanzas',
+        finance: 'finanzas',
+        settings: 'ajustes',
+    };
+
     const getMenuItems = () => {
         const base = [
             { id: 'dashboard', label: 'Inicio', icon: TrendingUp },
             { id: 'agenda', label: 'Agenda', icon: CalendarClock },
             { id: 'ficha', label: 'Pacientes', icon: User },
-            { id: 'informes', label: 'Informes', icon: FileText }, // Nueva pestaña clave
+            { id: 'informes', label: 'Informes', icon: FileText },
         ];
-        
+
         // El administrador o asistente manejan los pagos
-        if (userRole === 'admin' || userRole === 'assistant') { 
-            base.push({ id: 'history', label: 'Pagos & Caja', icon: Wallet }); 
+        if (userRole === 'admin' || userRole === 'assistant') {
+            base.push({ id: 'history', label: 'Pagos & Caja', icon: Wallet });
         }
-        
+
         // Ajustes solo para el administrador/dueño
-        if (userRole === 'admin') { 
-            base.push({ id: 'settings', label: 'Ajustes', icon: Settings }); 
+        if (userRole === 'admin') {
+            base.push({ id: 'settings', label: 'Ajustes', icon: Settings });
         }
-        
+
         base.push({ id: 'terms', label: 'Legal', icon: Shield });
         return base;
     };
@@ -83,14 +93,15 @@ export default function Sidebar({
                 {getMenuItems().map(item => {
                     const isActive = activeTab === item.id;
                     return (
-                        <button 
-                            key={item.id} 
-                            title={isWorkspaceActive ? item.label : ''} // Muestra tooltip en modo icono
-                            onClick={() => { 
-                                setActiveTab(item.id); 
-                                if(item.id !== 'ficha') setSelectedPatientId(null); 
-                                setMobileMenuOpen(false); 
-                            }} 
+                        <button
+                            key={item.id}
+                            data-tour={TOUR_IDS[item.id]}
+                            title={isWorkspaceActive ? item.label : ''}
+                            onClick={() => {
+                                setActiveTab(item.id);
+                                if(item.id !== 'ficha') setSelectedPatientId(null);
+                                setMobileMenuOpen(false);
+                            }}
                             className={`w-full flex items-center gap-3 py-3.5 rounded-2xl font-bold text-xs transition-all duration-200 group ${centerIcons} ${isActive ? 'bg-sage-green/10 text-sage-green border border-sage-green/20' : 'text-gray-500 hover:bg-warm-white hover:text-soft-dark border border-transparent'} ${isWorkspaceActive ? 'px-0' : 'px-4'}`}
                         >
                             <item.icon size={18} className={`shrink-0 transition-transform duration-300 ${isActive ? 'text-sage-green scale-110' : 'text-gray-400 group-hover:text-sage-green group-hover:scale-110'}`}/> 

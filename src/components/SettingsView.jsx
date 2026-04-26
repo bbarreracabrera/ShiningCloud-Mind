@@ -420,6 +420,18 @@ export default function SettingsView({
                                 ))}
                             </div>
                         </Card>
+
+                        <div className="flex justify-center pt-2">
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('shiningcloud_tour_completed');
+                                    window.location.reload();
+                                }}
+                                className="text-xs text-[#5B6651] hover:underline font-bold"
+                            >
+                                🎯 Repetir tour de bienvenida
+                            </button>
+                        </div>
                     </>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 opacity-50">
