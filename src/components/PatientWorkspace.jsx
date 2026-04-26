@@ -13,6 +13,7 @@ import PatientEvolutionTab from './PatientEvolutionTab';
 import PatientConsentTab from './PatientConsentTab';
 import PatientImagesTab from './PatientImagesTab';
 import SignaturePad from './SignaturePad';
+import PatientSummary from './PatientSummary';
 
 export default function PatientWorkspace({
     selectedPatientId, setSelectedPatientId, patientTab, setPatientTab, 
@@ -20,7 +21,8 @@ export default function PatientWorkspace({
     activeFormType, setActiveFormType, viewingForm, setViewingForm,
     activeFolder, setActiveFolder, uploading, 
     modal, setModal, getPatient, savePatientData, 
-    logAction, handleGeneratePDF, handleImageUpload, notify, sendWhatsApp, setSelectedImg, onSaveSignature
+    logAction, handleGeneratePDF, handleImageUpload, notify, sendWhatsApp, setSelectedImg, onSaveSignature,
+    appointments = [], financialRecords = []
 }) {
     const [showSignaturePad, setShowSignaturePad] = useState(false);
     React.useEffect(() => {
@@ -54,6 +56,13 @@ export default function PatientWorkspace({
                     <h2 className="text-4xl font-black text-[#312923] tracking-tight capitalize">{p.personal?.legalName || 'Consultante'}</h2>
                 </div>
             </div>
+
+            <PatientSummary
+                patient={p}
+                appointments={appointments}
+                financialRecords={financialRecords}
+                selectedPatientId={selectedPatientId}
+            />
 
             {/* --- ALERTAS CLÍNICAS --- */}
             {(() => {

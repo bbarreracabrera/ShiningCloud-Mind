@@ -440,6 +440,7 @@ export default function App() {
                 uploading={uploading} modal={modal} setModal={setModal}
                 logAction={logAction} notify={notify} sendWhatsApp={sendWhatsApp}
                 setSelectedImg={setSelectedImg}
+                appointments={appointments} financialRecords={financialRecords}
                 handleImageUpload={(file) => uploadPatientImage(file, { selectedPatientId, setUploading, getPatient, activeFolder, savePatientData, notify, logAction })}
                 handleGeneratePDF={(type, data) => generatePDF(type, data, { 
     themeMode, 
