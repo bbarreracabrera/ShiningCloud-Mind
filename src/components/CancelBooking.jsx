@@ -46,7 +46,7 @@ export default function CancelBooking({ token }) {
     };
 
     return (
-        <div className="min-h-screen bg-pastel-pink flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-pastel-pink-soft flex flex-col items-center justify-center p-4">
             <div className="w-12 h-12 bg-sage-green rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
                 <Cloud className="text-white" size={24} />
             </div>
