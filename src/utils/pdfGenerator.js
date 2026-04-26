@@ -170,25 +170,55 @@ export const generatePDF = (type, data = null, context = {}) => {
             doc.setLineWidth(0.3);
             doc.line(15, 92, 195, 92);
 
-            // Cuerpo del informe
+            // Cuerpo del informe — paginación automática
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(...ESPRESSO);
-            const splitContent = doc.splitTextToSize(data.content || '', 170);
-            doc.text(splitContent, 20, 102, { align: 'justify', maxWidth: 170 });
+            const lines = doc.splitTextToSize(data.content || '', 170);
+            const lineHeight = 6;
+            const pageMaxY = 275;
+            let currentY = 102;
+            let pageNum = 1;
 
-            // Firma del profesional
+            for (const line of lines) {
+                if (currentY > pageMaxY) {
+                    doc.addPage();
+                    pageNum++;
+                    currentY = 30;
+                    // Mini encabezado en páginas adicionales
+                    doc.setFontSize(8);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(...TAUPE);
+                    doc.text(`${(data.type || 'INFORME CLÍNICO').toUpperCase()} — Pág. ${pageNum}`, 195, 15, { align: 'right' });
+                    doc.setDrawColor(...LIGHT_TAUPE);
+                    doc.setLineWidth(0.3);
+                    doc.line(15, 18, 195, 18);
+                    doc.setFontSize(10);
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(...ESPRESSO);
+                }
+                doc.text(line, 20, currentY);
+                currentY += lineHeight;
+            }
+
+            // Firma del profesional — posición dinámica
+            const maxYBeforeNewPage = 240;
+            if (currentY > maxYBeforeNewPage) {
+                doc.addPage();
+                currentY = 40;
+            }
+            const sigY = Math.max(currentY + 30, 248);
             doc.setDrawColor(...TAUPE);
-            doc.line(120, 248, 190, 248);
+            doc.line(120, sigY, 190, sigY);
             doc.setFontSize(8);
             doc.setFont("helvetica", "bold");
             doc.setTextColor(...TAUPE);
-            doc.text("Firma y Timbre del Profesional", 155, 253, { align: 'center' });
+            doc.text("Firma y Timbre del Profesional", 155, sigY + 5, { align: 'center' });
             if (config.name) {
                 doc.setFont("helvetica", "normal");
-                doc.text(config.name, 155, 258, { align: 'center' });
+                doc.text(config.name, 155, sigY + 10, { align: 'center' });
             }
-            if (config.rut) doc.text(`RUT: ${config.rut}`, 155, 262, { align: 'center' });
+            if (config.rut) doc.text(`RUT: ${config.rut}`, 155, sigY + 14, { align: 'center' });
         }
 
         else if (type === 'receipt' && data) {
