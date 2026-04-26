@@ -193,6 +193,46 @@ export default function SettingsView({
                             </div>
                         </Card>
 
+                        {/* --- PAGOS ONLINE --- */}
+                        <Card className="rounded-[2.5rem] border border-[#DFD2C4]/60 bg-white p-8 shadow-sm">
+                            <h3 className="font-black text-xl text-[#312923] mb-6 flex items-center gap-2 border-b border-[#DFD2C4]/50 pb-4">
+                                <Percent className="text-[#5B6651]"/> Pagos Online
+                            </h3>
+
+                            <div className="flex items-center justify-between p-5 bg-[#FDFBF7] rounded-2xl border border-[#DFD2C4]/60 mb-4">
+                                <div>
+                                    <p className="font-black text-sm text-[#312923]">Requerir pago al agendar</p>
+                                    <p className="text-[10px] text-[#9A8F84] font-bold mt-0.5">El paciente debe pagar antes de confirmar la cita</p>
+                                </div>
+                                <div
+                                    className={`w-12 h-6 rounded-full flex items-center cursor-pointer transition-colors px-0.5 ${config.requirePayment ? 'bg-[#5B6651]' : 'bg-[#DFD2C4]'}`}
+                                    onClick={() => setConfigLocal({ ...config, requirePayment: !config.requirePayment })}
+                                >
+                                    <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${config.requirePayment ? 'translate-x-6' : 'translate-x-0'}`} />
+                                </div>
+                            </div>
+
+                            {config.requirePayment && (
+                                <div className="animate-in fade-in space-y-4">
+                                    <div>
+                                        <label className={labelClass}>Monto por sesión (CLP)</label>
+                                        <input
+                                            type="number"
+                                            className={inputClass}
+                                            placeholder="Ej: 50000"
+                                            value={config.sessionPrice || ''}
+                                            onChange={e => setConfigLocal({ ...config, sessionPrice: Number(e.target.value) })}
+                                        />
+                                    </div>
+                                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                                        <p className="text-xs text-amber-700 font-bold leading-relaxed">
+                                            El paciente deberá pagar al momento de reservar. Si no paga en 30 minutos, la cita se libera automáticamente.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </Card>
+
                         {/* --- HORARIOS DE ATENCIÓN --- */}
                         <Card className="rounded-[2.5rem] border border-[#DFD2C4]/60 bg-[#FDFBF7] p-8 shadow-inner">
                             <div className="flex justify-between items-center mb-6 border-b border-[#DFD2C4]/50 pb-4">

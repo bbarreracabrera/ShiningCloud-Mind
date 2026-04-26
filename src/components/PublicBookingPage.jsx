@@ -136,6 +136,9 @@ export default function PublicBookingPage({ clinicId }) {
             const newPatientId = "pac_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
             const token = crypto.randomUUID();
 
+            const requirePayment = clinicConfig?.requirePayment && clinicConfig?.sessionPrice > 0;
+            const apptStatus = requirePayment ? 'pendiente_pago' : 'pendiente';
+
             // A. Guardamos la cita usando clinicUserId ya disponible en estado
             const { error: apptError } = await supabase.from('appointments').insert({
                 id: newApptId,
@@ -145,12 +148,12 @@ export default function PublicBookingPage({ clinicId }) {
                 time: formData.time,
                 treatment: formData.reason || 'Consulta General (Agendado Online)',
                 duration: 60,
-                status: 'pendiente',
+                status: apptStatus,
                 cancel_token: token
             });
             if (!apptError) setCancelToken(token);
             if (apptError) throw apptError;
-            
+
             // B. Creamos la ficha base del paciente
             if (!clinicUserId) {
                 console.error('clinicUserId es null, no se puede crear paciente');
@@ -162,6 +165,23 @@ export default function PublicBookingPage({ clinicId }) {
                     personal: { legalName: formData.name, phone: formData.phone, rut: formData.rut }
                 });
                 if (patientError) console.error("No se pudo pre-crear el paciente, pero la cita se guardó.", patientError);
+            }
+
+            // C. Si requiere pago, crear preferencia MP y redirigir
+            if (requirePayment) {
+                const { data: payData } = await supabase.functions.invoke('create-payment', {
+                    body: {
+                        appointmentId: newApptId,
+                        amount: clinicConfig.sessionPrice,
+                        description: `Sesión psicológica - ${clinicConfig.name || 'Consulta'}`,
+                        payerEmail: formData.email || ''
+                    }
+                });
+                if (payData?.init_point) {
+                    window.location.href = payData.init_point;
+                    return;
+                }
+                // Si falla el pago, continuar con flujo normal
             }
 
             try {
@@ -178,7 +198,6 @@ export default function PublicBookingPage({ clinicId }) {
                 });
             } catch (emailError) {
                 console.warn('Email no enviado:', emailError);
-                // No bloqueamos el flujo si falla el email
             }
 
             setStep(4);
