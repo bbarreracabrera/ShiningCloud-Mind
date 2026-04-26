@@ -20,6 +20,7 @@ import CancelBooking from './components/CancelBooking';
 import MPOAuthCallback from './components/MPOAuthCallback';
 import ImportPatientsModal from './components/ImportPatientsModal';
 import WelcomeTour from './components/WelcomeTour';
+import AuditLogView from './components/AuditLogView';
 
 import ApptModal from './components/ApptModal';
 import OnboardingModal from './components/OnboardingModal';
@@ -148,9 +149,21 @@ export default function App() {
       setPatientRecords, setAppointments, setFinancialRecords, setConfigLoaded
   });
 
-  const logAction = useCallback(async (action, details, patientId = null) => {
-    // Lógica de logs (lista para cuando implementes tracking estricto)
-  }, [session, clinicOwner]);
+  const logAction = useCallback(async (action, details = {}, resourceId = null) => {
+    if (!session?.user?.id) return;
+    try {
+        await supabase.from('audit_log').insert({
+            user_id: session.user.id,
+            action,
+            resource_type: details.resource_type || null,
+            resource_id: resourceId,
+            details,
+            user_agent: navigator.userAgent
+        });
+    } catch (err) {
+        console.error('Error guardando log:', err);
+    }
+  }, [session]);
   
 // ==========================================
   // 💾 MOTOR DE GUARDADO EN BASE DE DATOS
@@ -235,9 +248,12 @@ export default function App() {
           const payloadWithUser = { ...dataObj, id: id.toString(), user_id: currentSession.user.id, name: dataObj?.personal?.legalName || '' };
           const { error } = await supabase.from('patients').upsert(payloadWithUser, { onConflict: 'id' }).select();
           if (error) console.error('Error guardando paciente:', error);
-          else console.log('Paciente guardado OK');
+          else {
+              console.log('Paciente guardado OK');
+              logAction('patient_updated', { resource_type: 'patient' }, id);
+          }
       }, 800);
-  }, []);
+  }, [logAction]);
 
  // 👇 NUEVA VERSIÓN BLINDADA (SIN BUCKETS PÚBLICOS) 👇
   const handleSaveSignature = async (base64Data) => {
@@ -261,8 +277,9 @@ export default function App() {
           };
 
           await savePatientData(selectedPatientId, updatedPatient);
+          logAction('consent_signed', { resource_type: 'consent' }, selectedPatientId);
           notify("Firma asegurada y encriptada en la ficha del paciente. 🔒");
-          setModal(null); 
+          setModal(null);
 
       } catch (error) {
           console.error("Error legal signature:", error);
@@ -389,7 +406,9 @@ export default function App() {
         
         {activeTab === 'agenda' && <AgendaView appointments={appointments} onOpenModal={(appt) => { setNewAppt(appt); setModal('appt'); }} sendWhatsApp={sendWhatsApp} getPatientPhone={getPatientPhone} buildReminder={buildReminder} />}
         
-        {activeTab === 'settings' && <SettingsView themeMode={themeMode} t={t} config={config} setConfigLocal={setConfigLocal} userRole={userRole} saveToSupabase={saveToSupabase} notify={notify} team={team} setTeam={setTeam} newMember={{}} setNewMember={()=>{}} session={session} />}
+        {activeTab === 'settings' && <SettingsView themeMode={themeMode} t={t} config={config} setConfigLocal={setConfigLocal} userRole={userRole} saveToSupabase={saveToSupabase} notify={notify} team={team} setTeam={setTeam} newMember={{}} setNewMember={()=>{}} session={session} setActiveTab={setActiveTab} />}
+
+        {activeTab === 'auditoria' && <AuditLogView session={session} />}
         
         {(activeTab === 'finance' || activeTab === 'history') && (
             <FinanceCenter
@@ -427,6 +446,7 @@ export default function App() {
                             newPatient.id = newId; newPatient.personal.legalName = nombreReal;
                             savePatientData(newId, newPatient);
                             setSelectedPatientId(newId);
+                            logAction('patient_created', { resource_type: 'patient', name: nombreReal }, newId);
                             notify("Consultante Creado Exitosamente");
                         } else {
                             setSelectedPatientId(p.id);
@@ -461,14 +481,10 @@ export default function App() {
                 setSelectedImg={setSelectedImg}
                 appointments={appointments} financialRecords={financialRecords}
                 handleImageUpload={(file) => uploadPatientImage(file, { selectedPatientId, setUploading, getPatient, activeFolder, savePatientData, notify, logAction })}
-                handleGeneratePDF={(type, data) => generatePDF(type, data, { 
-    themeMode, 
-    config, 
-    selectedPatientId, 
-    getPatient, 
-    patientRecords, 
-    notify 
-})}
+                handleGeneratePDF={(type, data) => {
+                    logAction('pdf_generated', { resource_type: 'pdf', pdf_type: type }, selectedPatientId);
+                    generatePDF(type, data, { themeMode, config, selectedPatientId, getPatient, patientRecords, notify });
+                }}
                 onSaveSignature={handleSaveSignature}
             />
         )}

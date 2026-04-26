@@ -6,7 +6,7 @@ import { supabase } from '../supabase';
 
 export default function SettingsView({
     themeMode, t, config, setConfigLocal, logoInputRef, handleLogoUpload,
-    userRole, saveToSupabase, notify, team, setTeam, newMember, setNewMember, session
+    userRole, saveToSupabase, notify, team, setTeam, newMember, setNewMember, session, setActiveTab
 }) {
     const inputClass = "w-full p-4 rounded-2xl bg-[#FDFBF7] border border-[#DFD2C4] outline-none font-bold text-[#312923] focus:border-[#5B6651] transition-colors shadow-sm";
     const labelClass = "text-[10px] font-black uppercase tracking-widest text-[#9A8F84] ml-2 mb-2 block";
@@ -421,7 +421,13 @@ export default function SettingsView({
                             </div>
                         </Card>
 
-                        <div className="flex justify-center pt-2">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                            <button
+                                onClick={() => setActiveTab && setActiveTab('auditoria')}
+                                className="px-4 py-2 bg-warm-white border border-pastel-pink rounded-2xl text-sm font-bold text-soft-dark hover:bg-pastel-pink transition-colors"
+                            >
+                                🛡️ Ver registro de actividad
+                            </button>
                             <button
                                 onClick={() => {
                                     if (session?.user?.id) {

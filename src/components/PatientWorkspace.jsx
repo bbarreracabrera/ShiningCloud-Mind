@@ -30,6 +30,11 @@ export default function PatientWorkspace({
         window.addEventListener('open-signature-pad', handleOpen);
         return () => window.removeEventListener('open-signature-pad', handleOpen);
     }, []);
+    useEffect(() => {
+        if (selectedPatientId) {
+            logAction('patient_viewed', { resource_type: 'patient' }, selectedPatientId);
+        }
+    }, [selectedPatientId]);
     const p = getPatient(selectedPatientId);
 
     // Las 7 Pestañas Clínicas
