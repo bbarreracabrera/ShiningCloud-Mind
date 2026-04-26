@@ -104,12 +104,19 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!session || showOnboarding) return;
-    const done = localStorage.getItem('shiningcloud_tour_completed');
-    if (!done && config.name) {
-      setRunTour(true);
+    if (!session?.user?.id) return;
+    if (showOnboarding) return;
+    if (!config?.name) return;
+    if (runTour) return;
+
+    const tourKey = `tour_completed_${session.user.id}`;
+    const done = localStorage.getItem(tourKey);
+
+    if (!done) {
+      const timer = setTimeout(() => setRunTour(true), 1500);
+      return () => clearTimeout(timer);
     }
-  }, [session, showOnboarding, config.name]);
+  }, [session?.user?.id, showOnboarding, config?.name]);
 
   const notify = (m) => toast.success(m, { 
       style: { borderRadius: '12px', background: '#fadadd', color: '#4a4a4b', border: '1px solid rgba(250,218,221,0.5)', fontWeight: 'bold', fontSize: '13px' },
@@ -350,7 +357,7 @@ export default function App() {
   return (
     <div className={`min-h-screen flex bg-pastel-pink text-soft-dark transition-all duration-500 font-sans`}>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <WelcomeTour run={runTour} onComplete={() => setRunTour(false)} setActiveTab={setActiveTab} />
+      <WelcomeTour run={runTour} userId={session?.user?.id} onComplete={() => setRunTour(false)} setActiveTab={setActiveTab} />
 
       {showSubscriptionBanner && (
           <div className="fixed top-0 left-0 right-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between">

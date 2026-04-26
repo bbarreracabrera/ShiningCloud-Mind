@@ -1,9 +1,8 @@
 import React from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
-const TOUR_KEY_DONE = 'shiningcloud_tour_completed';
-
-export default function WelcomeTour({ run, onComplete, setActiveTab }) {
+export default function WelcomeTour({ run, onComplete, setActiveTab, userId }) {
+    const TOUR_KEY = userId ? `tour_completed_${userId}` : 'tour_completed';
     const steps = [
         {
             target: 'body',
@@ -75,7 +74,7 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
         }
 
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-            localStorage.setItem(TOUR_KEY_DONE, 'true');
+            localStorage.setItem(TOUR_KEY, 'true');
             onComplete && onComplete();
         }
     };

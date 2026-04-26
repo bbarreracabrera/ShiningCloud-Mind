@@ -424,7 +424,9 @@ export default function SettingsView({
                         <div className="flex justify-center pt-2">
                             <button
                                 onClick={() => {
-                                    localStorage.removeItem('shiningcloud_tour_completed');
+                                    if (session?.user?.id) {
+                                        localStorage.removeItem(`tour_completed_${session.user.id}`);
+                                    }
                                     window.location.reload();
                                 }}
                                 className="text-xs text-[#5B6651] hover:underline font-bold"
