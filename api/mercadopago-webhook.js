@@ -1,6 +1,52 @@
+import crypto from 'crypto';
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Verificar firma HMAC si MP_WEBHOOK_SECRET está configurada
+    const secret = process.env.MP_WEBHOOK_SECRET;
+    if (secret && secret.length > 10) {
+        const xSignature = req.headers['x-signature'];
+        const xRequestId = req.headers['x-request-id'];
+        const dataId = req.query?.['data.id'] || req.body?.data?.id;
+
+        if (!xSignature) {
+            console.warn('Webhook sin x-signature, rechazando');
+            return res.status(401).json({ error: 'Missing signature' });
+        }
+
+        const parts = xSignature.split(',');
+        let ts, hash;
+        parts.forEach(part => {
+            const [key, value] = part.split('=');
+            if (key?.trim() === 'ts') ts = value?.trim();
+            if (key?.trim() === 'v1') hash = value?.trim();
+        });
+
+        if (!ts || !hash) {
+            return res.status(401).json({ error: 'Invalid signature format' });
+        }
+
+        const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+
+        const computedHash = crypto
+            .createHmac('sha256', secret)
+            .update(manifest)
+            .digest('hex');
+
+        if (computedHash !== hash) {
+            console.warn('Firma HMAC inválida', {
+                received: hash.substring(0, 10),
+                expected: computedHash.substring(0, 10)
+            });
+            return res.status(401).json({ error: 'Invalid signature' });
+        }
+
+        console.log('Firma HMAC válida ✓');
+    } else {
+        console.warn('MP_WEBHOOK_SECRET no configurado, validación HMAC saltada');
     }
 
     const { type, data } = req.body;
