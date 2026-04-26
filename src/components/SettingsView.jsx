@@ -429,9 +429,12 @@ export default function SettingsView({
                                 🛡️ Ver registro de actividad
                             </button>
                             <button
-                                onClick={() => {
-                                    if (session?.user?.id) {
-                                        localStorage.removeItem(`tour_completed_${session.user.id}`);
+                                onClick={async () => {
+                                    if (config && session?.user?.id) {
+                                        const updatedConfig = { ...config };
+                                        delete updatedConfig.tour_completed;
+                                        setConfigLocal(updatedConfig);
+                                        await saveToSupabase('settings', session.user.id, updatedConfig);
                                     }
                                     window.location.reload();
                                 }}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
-export default function WelcomeTour({ run, onComplete, setActiveTab, userId }) {
+export default function WelcomeTour({ run, onComplete, setActiveTab }) {
     const steps = [
         {
             target: 'body',
@@ -56,7 +56,6 @@ export default function WelcomeTour({ run, onComplete, setActiveTab, userId }) {
 
     const handleCallback = (data) => {
         const { status, type, index, action } = data;
-        const TOUR_KEY = userId ? `tour_completed_${userId}` : 'tour_completed';
 
         if (type === 'step:before') {
             const tabsByStep = {
@@ -68,17 +67,13 @@ export default function WelcomeTour({ run, onComplete, setActiveTab, userId }) {
             }
         }
 
-        const finishStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
-        const closeActions = ['close', 'reset', 'stop'];
-
-        if (finishStatuses.includes(status) || closeActions.includes(action)) {
-            try {
-                localStorage.setItem(TOUR_KEY, 'true');
-                console.log('Tour marcado como completado:', TOUR_KEY);
-            } catch(e) {
-                console.error('Error guardando localStorage:', e);
-            }
-            onComplete && onComplete();
+        if (
+            status === STATUS.FINISHED ||
+            status === STATUS.SKIPPED ||
+            action === 'close' ||
+            action === 'reset'
+        ) {
+            if (onComplete) onComplete();
         }
     };
 
