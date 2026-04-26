@@ -106,9 +106,9 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
 
     const combinedResults = useMemo(() => { 
         if (!query) return []; 
-        const q = query.toLowerCase();
+        const q = (query || '').toLowerCase();
         const local = Object.values(patients).filter(p => {
-            const name = (p.personal?.legalName || '').toLowerCase();
+            const name = (p.personal?.legalName || p.name || '').toLowerCase();
             const rut = (p.personal?.rut || '').toLowerCase();
             const phone = (p.personal?.phone || '').toLowerCase();
             return name.includes(q) || rut.includes(q) || phone.includes(q);

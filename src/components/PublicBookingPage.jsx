@@ -152,12 +152,23 @@ export default function PublicBookingPage({ clinicId }) {
             if (apptError) throw apptError;
             
             // B. Creamos la ficha base del paciente
-            const { error: patientError } = await supabase.from('patients').insert({
-                id: newPatientId,
-                name: formData.name,
-                personal: { legalName: formData.name, phone: formData.phone, rut: formData.rut }
-            });
-            if (patientError) console.error("No se pudo pre-crear el paciente, pero la cita se guardó.", patientError);
+            if (!clinicUserId) {
+                console.error('clinicUserId es null, no se puede crear paciente');
+            } else {
+                console.log('Insertando paciente con payload:', {
+                    id: newPatientId,
+                    user_id: clinicUserId,
+                    name: formData.name,
+                    personal: { legalName: formData.name, phone: formData.phone, rut: formData.rut }
+                });
+                const { error: patientError } = await supabase.from('patients').insert({
+                    id: newPatientId,
+                    user_id: clinicUserId,
+                    name: formData.name,
+                    personal: { legalName: formData.name, phone: formData.phone, rut: formData.rut }
+                });
+                if (patientError) console.error("No se pudo pre-crear el paciente, pero la cita se guardó.", patientError);
+            }
 
             try {
                 await supabase.functions.invoke('notify-booking', {
