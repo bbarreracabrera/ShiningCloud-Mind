@@ -17,6 +17,7 @@ import Sidebar from './components/layout/Sidebar';
 import PatientWorkspace from './components/PatientWorkspace'; 
 import PublicBookingPage from './components/PublicBookingPage';
 import CancelBooking from './components/CancelBooking';
+import ImportPatientsModal from './components/ImportPatientsModal';
 
 import ApptModal from './components/ApptModal';
 import OnboardingModal from './components/OnboardingModal';
@@ -31,6 +32,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [themeMode, setThemeMode] = useState('light'); 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -384,6 +386,12 @@ export default function App() {
         {activeTab === 'ficha' && !selectedPatientId && (
             <div className="space-y-4 animate-in slide-in-from-bottom">
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowImport(true)}
+                        className="shrink-0 flex items-center gap-2 px-4 py-2 border border-pastel-pink rounded-2xl text-sage-green font-bold text-xs hover:bg-warm-white transition-all"
+                    >
+                        <ArrowRight size={14} className="rotate-90" /> Importar CSV
+                    </button>
                     <PatientSelect theme={themeMode} patients={patientRecords} placeholder="Buscar o Crear Consultante..." onSelect={(p) => {
                         if (p.id === 'new') {
                             if (!session?.user?.id) { notify("Debes iniciar sesión para crear pacientes."); return; }
@@ -452,6 +460,23 @@ export default function App() {
 
       {showOnboarding && (
           <OnboardingModal onSave={handleOnboardingSave} />
+      )}
+
+      {showImport && (
+          <ImportPatientsModal
+              onClose={() => setShowImport(false)}
+              onImport={async (patients) => {
+                  let successCount = 0;
+                  for (const patient of patients) {
+                      const newId = "pac_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                      await savePatientData(newId, { ...patient, id: newId });
+                      successCount++;
+                  }
+                  notify(`${successCount} pacientes importados`);
+                  return successCount;
+              }}
+              notify={notify}
+          />
       )}
     </div>
   );
