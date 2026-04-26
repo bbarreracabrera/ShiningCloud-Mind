@@ -373,7 +373,7 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen flex bg-warm-white text-soft-dark transition-all duration-500 font-sans`}>
+    <div className={`min-h-screen flex bg-pastel-pink text-soft-dark transition-all duration-500 font-sans`}>
       <Toaster position="bottom-center" reverseOrder={false} />
       <WelcomeTour run={runTour} userId={session?.user?.id} onComplete={() => setRunTour(false)} setActiveTab={setActiveTab} />
 

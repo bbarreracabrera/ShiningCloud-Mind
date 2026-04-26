@@ -7,13 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        'pastel-pink': '#fbe8e9',
-        'pastel-pink-soft': '#fdf2f3',
+        'pastel-pink': '#fcd7d9',
+        'pastel-pink-soft': '#fbe5e7',
         'sage-green': '#a5bda3',
         'sage-green-light': '#c8dac6',
         'water-blue': '#c5e0dc',
-        'soft-dark': '#2a2521',
-        'warm-white': '#fbfaf7',
+        'soft-dark': '#3a2e26',
+        'warm-white': '#faf5ee',
         'gray-warm': '#8a8580',
       }
     },
