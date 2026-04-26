@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
 const TOUR_KEY_DONE = 'shiningcloud_tour_completed';
 
 export default function WelcomeTour({ run, onComplete, setActiveTab }) {
-    const [stepIndex, setStepIndex] = useState(0);
-
     const steps = [
         {
             target: 'body',
@@ -59,11 +57,10 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
     ];
 
     const handleCallback = (data) => {
-        const { status, type, index } = data;
+        const { status, type, index, action } = data;
 
-        if (type === 'step:after') {
+        if (type === 'step:before') {
             const tabsByStep = {
-                0: 'dashboard',
                 1: 'dashboard',
                 2: 'agenda',
                 3: 'ficha',
@@ -75,7 +72,6 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
             if (setActiveTab && tabsByStep[index] !== undefined) {
                 setActiveTab(tabsByStep[index]);
             }
-            setStepIndex(index + 1);
         }
 
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
@@ -88,12 +84,12 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
         <Joyride
             steps={steps}
             run={run}
-            stepIndex={stepIndex}
             continuous
             showSkipButton
             showProgress
             scrollToFirstStep
-            disableScrolling={false}
+            disableScrolling={true}
+            scrollOffset={100}
             callback={handleCallback}
             locale={{
                 back: 'Atrás',
