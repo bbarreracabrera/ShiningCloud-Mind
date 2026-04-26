@@ -262,6 +262,18 @@ export default function App() {
       return foundEntry?.personal?.phone || '';
   };
 
+  const buildReminder = (appt) => {
+      const fecha = new Date(appt.date + 'T' + appt.time)
+          .toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+      const template = config?.wpGreeting ||
+          'Hola {nombre}, te recuerdo tu sesión el {fecha} a las {hora}. ¿Confirmas tu asistencia?';
+      return template
+          .replace('{nombre}', appt.patient_name || '')
+          .replace('{paciente}', appt.patient_name || '')
+          .replace('{fecha}', fecha)
+          .replace('{hora}', appt.time || '');
+  };
+
   const incomeRecords = financialRecords.filter(f => !f.type || f.type === 'income');
   const expenseRecords = financialRecords.filter(f => f.type === 'expense');
   const totalCollected = incomeRecords.reduce((acc, rec) => { const paymentsSum = (rec.payments || []).reduce((s, p) => s + Number(p.amount), 0); return acc + (paymentsSum > 0 ? paymentsSum : (Number(rec.paid) || 0)); }, 0);
@@ -346,9 +358,9 @@ export default function App() {
 
       <main className={`flex-1 p-6 md:p-10 h-screen overflow-y-auto transition-all duration-300 ${isWorkspaceActive ? 'md:ml-20' : 'md:ml-[250px]'}`}>
         
-        {activeTab === 'dashboard' && <DashboardView config={config} userRole={userRole} themeMode={themeMode} t={t} totalCollected={totalCollected} totalExpenses={totalExpenses} netProfit={netProfit} chartData={chartData} todaysAppointments={todaysAppointments} appointments={appointments} setActiveTab={setActiveTab} setModal={setModal} setSelectedPatientId={setSelectedPatientId} />}
+        {activeTab === 'dashboard' && <DashboardView config={config} userRole={userRole} themeMode={themeMode} t={t} totalCollected={totalCollected} totalExpenses={totalExpenses} netProfit={netProfit} chartData={chartData} todaysAppointments={todaysAppointments} appointments={appointments} setActiveTab={setActiveTab} setModal={setModal} setSelectedPatientId={setSelectedPatientId} sendWhatsApp={sendWhatsApp} getPatientPhone={getPatientPhone} buildReminder={buildReminder} />}
         
-        {activeTab === 'agenda' && <AgendaView appointments={appointments} onOpenModal={(appt) => { setNewAppt(appt); setModal('appt'); }} />}
+        {activeTab === 'agenda' && <AgendaView appointments={appointments} onOpenModal={(appt) => { setNewAppt(appt); setModal('appt'); }} sendWhatsApp={sendWhatsApp} getPatientPhone={getPatientPhone} buildReminder={buildReminder} />}
         
         {activeTab === 'settings' && <SettingsView themeMode={themeMode} t={t} config={config} setConfigLocal={setConfigLocal} userRole={userRole} saveToSupabase={saveToSupabase} notify={notify} team={team} setTeam={setTeam} newMember={{}} setNewMember={()=>{}} session={session} />}
         

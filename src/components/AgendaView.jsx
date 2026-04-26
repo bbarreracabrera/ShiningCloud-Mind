@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Brain } from 'lucide-react';
 
-export default function AgendaView({ appointments, onOpenModal }) {
+export default function AgendaView({ appointments, onOpenModal, sendWhatsApp, getPatientPhone, buildReminder }) {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
@@ -96,6 +96,17 @@ export default function AgendaView({ appointments, onOpenModal }) {
                                                 {/* VARIABLE CORREGIDA PARA MOSTRAR NOMBRE */}
                                                 <p className="text-[10px] font-black truncate">{appt.patient_name || appt.name || 'Sin Nombre'}</p>
                                                 <p className="text-[8px] font-bold opacity-70 truncate uppercase tracking-tighter">{appt.treatment}</p>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const phone = getPatientPhone(appt.patient_name);
+                                                        if (!phone) { alert('El paciente no tiene teléfono registrado'); return; }
+                                                        sendWhatsApp(phone, buildReminder(appt));
+                                                    }}
+                                                    className="text-[8px] text-[#5B6651] hover:underline mt-0.5 leading-none"
+                                                >
+                                                    📱 Recordar
+                                                </button>
                                             </div>
                                         ))}
                                     </div>

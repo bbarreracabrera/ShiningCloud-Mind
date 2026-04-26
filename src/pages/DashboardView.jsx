@@ -5,7 +5,7 @@ export default function DashboardView({
     config, userRole, themeMode, t,
     totalCollected, totalExpenses, netProfit, chartData, todaysAppointments,
     setActiveTab, setFinanceTab, setModal, setSelectedPatientId, setQuoteMode,
-    appointments = []
+    appointments = [], sendWhatsApp, getPatientPhone, buildReminder
 }) {
     const today = new Date();
 
@@ -222,6 +222,19 @@ export default function DashboardView({
                                     <div className="flex-1">
                                         <h4 className="font-bold text-soft-dark text-lg group-hover:text-sage-green transition-colors">{a.patient_name || a.name}</h4>
                                         <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-1">{a.treatment || 'Sesión Psicológica'}</p>
+                                        {buildReminder && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const phone = getPatientPhone(a.patient_name || a.name);
+                                                    if (!phone) { alert('El paciente no tiene teléfono registrado'); return; }
+                                                    sendWhatsApp(phone, buildReminder(a));
+                                                }}
+                                                className="text-[10px] text-sage-green hover:underline mt-1"
+                                            >
+                                                📱 Recordar
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="w-10 h-10 bg-warm-white rounded-full flex items-center justify-center text-gray-400 group-hover:bg-sage-green group-hover:text-white transition-colors border border-pastel-pink/50 group-hover:border-transparent">
                                         <ArrowRight size={18}/>
