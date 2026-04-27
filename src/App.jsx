@@ -34,6 +34,9 @@ import { uploadPatientImage } from './utils/uploadHandlers';
 import { useClinicData } from './hooks/useClinicData';
 
 export default function App() {
+  const [isInRecovery, setIsInRecovery] = useState(() =>
+      window.location.hash.includes('type=recovery')
+  );
   const [session, setSession] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
@@ -134,7 +137,10 @@ export default function App() {
       });
 
       // 2. Nos suscribimos a los cambios (Login, Logout, etc.)
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'PASSWORD_RECOVERY') {
+              setIsInRecovery(true);
+          }
           setSession(session);
       });
 
@@ -349,16 +355,18 @@ export default function App() {
 // ==========================================
   // 🔒 EL MURO DE ACCESO Y ENRUTAMIENTO
   // ==========================================
-  // Detectar flujo de reset de contraseña (hash #type=recovery de Supabase)
-  const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
-  if (hashParams.get('type') === 'recovery') {
-      return <ResetPasswordPage />;
-  }
-
   // Revisamos si la URL tiene el parámetro de reserva
   const urlParams = new URLSearchParams(window.location.search);
   const reservaId = urlParams.get('reserva');
   const cancelToken = urlParams.get('cancelar');
+
+  // Si venimos de un link de reset password, mostramos el formulario antes que cualquier otra cosa
+  if (isInRecovery) {
+      return <ResetPasswordPage onComplete={() => {
+          setIsInRecovery(false);
+          window.location.href = '/';
+      }} />;
+  }
 
   // Si es una URL de cancelación, mostramos el componente SIN pedir login
   if (cancelToken) {

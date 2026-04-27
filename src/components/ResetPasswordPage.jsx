@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabase';
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage({ onComplete }) {
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
     const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function ResetPasswordPage() {
         }
 
         setSuccess(true);
-        setTimeout(() => { window.location.href = '/'; }, 2000);
+        setTimeout(() => { if (onComplete) { onComplete(); } else { window.location.href = '/'; } }, 2000);
     };
 
     return (
