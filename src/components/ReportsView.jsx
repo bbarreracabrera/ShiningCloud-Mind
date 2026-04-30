@@ -95,7 +95,7 @@ export default function ReportsView({
                 </div>
                 
                 {/* TABS NUEVO / HISTORIAL */}
-                <div className="flex bg-[#FDFBF7] p-1.5 rounded-2xl border border-[#DFD2C4]/60 shadow-sm w-fit">
+                <div className="flex bg-[#FDFBF7] p-1.5 rounded-2xl border border-[#DFD2C4]/60 shadow-sm w-full md:w-fit overflow-x-auto shrink-0" style={{ WebkitOverflowScrolling: 'touch' }}>
                     <button
                         onClick={() => setViewMode('nuevo')}
                         className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${viewMode === 'nuevo' ? 'bg-[#312923] text-white shadow-md' : 'text-[#9A8F84] hover:text-[#312923]'}`}

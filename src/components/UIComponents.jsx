@@ -52,14 +52,14 @@ export const InputField = ({ label, icon: Icon, theme, textarea, className="", .
                 {/* Icono cambia a Verde Salvia al hacer focus */}
                 {Icon && <Icon size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-pastel-pink group-focus-within:text-sage-green transition-colors" />}
                 {textarea ? 
-                    <textarea 
-                        {...props} 
-                        rows="3" 
-                        className={`w-full p-4 ${Icon ? 'pl-11' : 'pl-4'} rounded-2xl border border-pastel-pink/70 bg-warm-white focus:bg-white focus:border-sage-green focus:ring-4 focus:ring-sage-green/20 outline-none transition-all font-medium text-soft-dark resize-none text-sm`}
-                    /> : 
-                    <input 
-                        {...props} 
-                        className={`w-full p-4 ${Icon ? 'pl-11' : 'pl-4'} rounded-2xl border border-pastel-pink/70 bg-warm-white focus:bg-white focus:border-sage-green focus:ring-4 focus:ring-sage-green/20 outline-none transition-all font-medium text-soft-dark text-sm`}
+                    <textarea
+                        {...props}
+                        rows="3"
+                        className={`w-full p-4 ${Icon ? 'pl-11' : 'pl-4'} rounded-2xl border border-pastel-pink/70 bg-warm-white focus:bg-white focus:border-sage-green focus:ring-4 focus:ring-sage-green/20 outline-none transition-all font-medium text-soft-dark resize-none text-base md:text-sm`}
+                    /> :
+                    <input
+                        {...props}
+                        className={`w-full p-4 ${Icon ? 'pl-11' : 'pl-4'} rounded-2xl border border-pastel-pink/70 bg-warm-white focus:bg-white focus:border-sage-green focus:ring-4 focus:ring-sage-green/20 outline-none transition-all font-medium text-soft-dark text-base md:text-sm`}
                     />
                 }
             </div>

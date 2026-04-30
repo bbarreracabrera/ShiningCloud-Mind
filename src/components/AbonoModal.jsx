@@ -10,8 +10,8 @@ export default function AbonoModal({
     if (!selectedFinancialRecord) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-[#312923]/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <Card className="w-full max-w-md shadow-2xl p-8 space-y-6 bg-white/95 border-[#DFD2C4]/50 rounded-[2.5rem]">
+        <div className="fixed inset-0 z-[100] bg-[#312923]/40 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-200">
+            <Card className="w-full md:max-w-md bg-white/95 border-[#DFD2C4]/50 rounded-t-3xl md:rounded-[2.5rem] max-h-[95vh] md:max-h-[85vh] overflow-y-auto p-8 space-y-6 shadow-2xl">
                 
                 {/* --- HEADER DEL MODAL --- */}
                 <div className="flex justify-between items-start border-b border-[#DFD2C4]/40 pb-5">

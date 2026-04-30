@@ -63,8 +63,8 @@ export default function ImportPatientsModal({ onClose, onImport, notify }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-soft-dark/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-soft-dark/40 flex items-end md:items-center justify-center p-0 md:p-4">
+            <div className="bg-white rounded-t-3xl md:rounded-3xl w-full md:max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <h2 className="text-2xl font-black text-soft-dark">Importar Pacientes</h2>

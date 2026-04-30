@@ -44,11 +44,11 @@ export default function DashboardView({
                             return <h1 className="text-4xl md:text-5xl font-bold text-soft-dark tracking-tighter">Hola, {firstName} 👋</h1>;
                         })()}
                 </div>
-                <div className="flex gap-3">
-                    <button onClick={()=>setModal('appt')} className="px-5 py-3 rounded-xl border border-pastel-pink bg-white text-soft-dark text-[11px] font-bold uppercase tracking-widest hover:bg-warm-white transition-all flex items-center gap-2 shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <button onClick={()=>setModal('appt')} className="px-4 sm:px-5 py-2 sm:py-3 rounded-xl border border-pastel-pink bg-white text-soft-dark text-[11px] font-bold uppercase tracking-widest hover:bg-warm-white transition-all flex items-center justify-center gap-2 shadow-sm">
                         <CalendarClock size={16} className="text-sage-green"/> Agendar
                     </button>
-                    <button onClick={()=>{setActiveTab('ficha'); setSelectedPatientId(null);}} className="px-5 py-3 rounded-xl bg-sage-green text-white text-[11px] font-bold uppercase tracking-widest hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-md shadow-sage-green/20">
+                    <button onClick={()=>{setActiveTab('ficha'); setSelectedPatientId(null);}} className="px-4 sm:px-5 py-2 sm:py-3 rounded-xl bg-sage-green text-white text-[11px] font-bold uppercase tracking-widest hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-md shadow-sage-green/20">
                         <Plus size={16}/> Nuevo Paciente
                     </button>
                 </div>

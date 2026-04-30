@@ -13,7 +13,7 @@ export default function OnboardingModal({ onSave }) {
     const labelClass = "text-[10px] font-black uppercase tracking-widest text-[#9A8F84] ml-1 mb-2 block";
 
     return (
-        <div className="fixed inset-0 z-[200] bg-warm-white flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[200] bg-warm-white flex items-start md:items-center justify-center p-4 overflow-y-auto">
             <div className="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-sage-green/15 blur-[120px] pointer-events-none"></div>
             <div className="fixed bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-water-blue/15 blur-[120px] pointer-events-none"></div>
 

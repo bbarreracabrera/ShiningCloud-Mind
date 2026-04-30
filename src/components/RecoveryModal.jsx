@@ -25,8 +25,8 @@ export default function RecoveryModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[300] bg-[#312923]/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <Card className="w-full max-w-md shadow-2xl p-8 space-y-6 bg-white/95 border-[#DFD2C4]/50 rounded-[2.5rem]">
+        <div className="fixed inset-0 z-[300] bg-[#312923]/60 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
+            <Card className="w-full md:max-w-md bg-white/95 border-[#DFD2C4]/50 rounded-t-3xl md:rounded-[2.5rem] max-h-[95vh] md:max-h-[85vh] overflow-y-auto p-8 space-y-6 shadow-2xl">
                 
                 <div className="flex flex-col items-center text-center pb-2 border-b border-[#DFD2C4]/40">
                     <div className="w-16 h-16 rounded-full bg-[#CBAAA2]/10 flex items-center justify-center text-[#CBAAA2] mb-4 shadow-inner">
