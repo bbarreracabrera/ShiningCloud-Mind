@@ -1,5 +1,5 @@
 import React from 'react';
-import { Joyride, STATUS } from 'react-joyride';
+import Joyride, { STATUS, EVENTS, ACTIONS } from 'react-joyride';
 
 export default function WelcomeTour({ run, onComplete, setActiveTab }) {
     const steps = [
@@ -55,24 +55,30 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
     ];
 
     const handleCallback = (data) => {
-        const { status, type, index, action } = data;
+        const { action, index, status, type, lifecycle } = data;
 
-        console.log('🎯 TOUR EVENT:', { type, action, status, index });
+        console.log('🎯 TOUR EVENT:', { type, action, status, lifecycle });
 
-        if (type === 'step:before') {
+        if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+            const nextIndex = index + (action === ACTIONS.PREV ? -1 : 1);
             const tabsByStep = {
                 1: 'dashboard', 2: 'agenda', 3: 'ficha',
                 4: 'informes', 5: 'finance', 6: 'settings',
             };
-            if (setActiveTab && tabsByStep[index] !== undefined) {
-                setActiveTab(tabsByStep[index]);
+            if (setActiveTab && tabsByStep[nextIndex] !== undefined) {
+                setActiveTab(tabsByStep[nextIndex]);
             }
         }
 
-        const isDone = status === STATUS.FINISHED || status === STATUS.SKIPPED;
-        const isTourEnd = type === 'tour:end';
-        if (isDone || isTourEnd) {
-            console.log('🟢 TOUR TERMINA — llamando onComplete', { status, action, type });
+        const isEnd =
+            status === STATUS.FINISHED ||
+            status === STATUS.SKIPPED ||
+            type === EVENTS.TOUR_END ||
+            action === ACTIONS.CLOSE ||
+            action === ACTIONS.RESET;
+
+        if (isEnd) {
+            console.log('🟢 TOUR TERMINA — llamando onComplete');
             if (onComplete) onComplete();
         }
     };
