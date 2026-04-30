@@ -57,6 +57,8 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
     const handleCallback = (data) => {
         const { status, type, index, action } = data;
 
+        console.log('🎯 TOUR EVENT:', { type, action, status, index });
+
         if (type === 'step:before') {
             const tabsByStep = {
                 1: 'dashboard', 2: 'agenda', 3: 'ficha',
@@ -68,9 +70,9 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
         }
 
         const isDone = status === STATUS.FINISHED || status === STATUS.SKIPPED;
-        const isClosed = type === 'tour:end' || (action === 'close' && status !== 'running');
-        if (isDone || isClosed) {
-            console.log('CALLBACK FINAL:', { status, action, type, isDone, isClosed });
+        const isTourEnd = type === 'tour:end';
+        if (isDone || isTourEnd) {
+            console.log('🟢 TOUR TERMINA — llamando onComplete', { status, action, type });
             if (onComplete) onComplete();
         }
     };

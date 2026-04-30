@@ -189,6 +189,7 @@ export default function App() {
                   data: dataObj,
                   user_id: session?.user?.id
               };
+              console.log('💾 saveToSupabase settings payload:', payload);
           } else {
               // Para patients, appointments, financial_records, etc., desempacamos los datos
               payload = { ...dataObj, id: id.toString(), user_id: session?.user?.id };
@@ -217,12 +218,25 @@ export default function App() {
   }, [session]);
 
   const handleTourComplete = useCallback(async () => {
+    console.log('🟢 handleTourComplete LLAMADO', {
+      hasConfig: !!config,
+      hasSession: !!session?.user?.id,
+      configName: config?.name,
+      tourAlreadyCompleted: config?.tour_completed,
+    });
     if (config && session?.user?.id) {
       const updatedConfig = { ...config, tour_completed: true };
+      console.log('🟢 Guardando config en DB:', updatedConfig);
       const success = await saveToSupabase('settings', session.user.id, updatedConfig);
+      console.log('🟢 Resultado saveToSupabase:', success);
       if (success) {
         setConfigLocal(updatedConfig);
+        console.log('🟢 setConfigLocal actualizado con tour_completed: true');
       }
+    } else {
+      console.warn('🔴 handleTourComplete: no se puede guardar — falta config o session', {
+        config, sessionId: session?.user?.id
+      });
     }
     setRunTour(false);
   }, [config, session, saveToSupabase]);
