@@ -123,7 +123,7 @@ export default function SettingsView({
                                                 placeholder="psicologo-tu-nombre" 
                                                 value={config.publicSlug || ''} 
                                                 onChange={e => {
-                                                    const slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                                                    const slug = (e.target.value || '').toLowerCase().replace(/[^a-z0-9-]/g, '-');
                                                     setConfigLocal({...config, publicSlug: slug});
                                                 }} 
                                             />

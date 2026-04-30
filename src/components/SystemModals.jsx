@@ -74,7 +74,7 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        if (query.length < 2) {
+        if (!query || query.length < 2) {
             setDbResults([]);
             return;
         }
@@ -120,13 +120,13 @@ export const PatientSelect = ({ theme, patients, onSelect, placeholder = "Buscar
     
     return (
         <div className="relative w-full z-20">
-            <InputField icon={Search} placeholder={placeholder} value={query} onChange={e => { setQuery(e.target.value); setShowResults(true); }} onFocus={() => setShowResults(true)} />
+            <InputField icon={Search} placeholder={placeholder} value={query} onChange={e => { setQuery(e.target.value || ''); setShowResults(true); }} onFocus={() => setShowResults(true)} />
             {showResults && query && (
                 <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl border border-pastel-pink/50 max-h-48 overflow-y-auto shadow-xl bg-white custom-scrollbar z-50">
                     {isSearching && <div className="p-4 text-xs text-gray-400 font-medium text-center flex items-center justify-center gap-2"><Loader size={14} className="animate-spin"/> Buscando en base de datos...</div>}
                     
                     {!isSearching && combinedResults.length > 0 ? combinedResults.map(p => (
-                        <div key={p.id} onClick={() => { onSelect(p); setQuery(p.personal?.legalName); setShowResults(false); }} className="p-4 hover:bg-warm-white cursor-pointer border-b border-pastel-pink/30 last:border-0 flex justify-between items-center group transition-colors">
+                        <div key={p.id} onClick={() => { onSelect(p); setQuery(p.personal?.legalName || ''); setShowResults(false); }} className="p-4 hover:bg-warm-white cursor-pointer border-b border-pastel-pink/30 last:border-0 flex justify-between items-center group transition-colors">
                             <p className="font-bold text-sm text-soft-dark group-hover:text-sage-green">{p.personal?.legalName}</p>
                             {!patients[p.id] && <span className="text-[9px] bg-pastel-pink/30 text-gray-500 border border-pastel-pink px-2 py-0.5 rounded-full font-black tracking-widest">NUBE</span>}
                         </div>
