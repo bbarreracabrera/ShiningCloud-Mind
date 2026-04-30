@@ -110,6 +110,14 @@ export default function App() {
   };
 
   useEffect(() => {
+    console.log('TOUR DEBUG:', {
+        sessionId: session?.user?.id,
+        showOnboarding,
+        configName: config?.name,
+        configTourCompleted: config?.tour_completed,
+        runTour,
+        fullConfig: config
+    });
     if (!session?.user?.id) return;
     if (showOnboarding) return;
     if (!config?.name) return;
@@ -216,6 +224,7 @@ export default function App() {
   }, [session]);
 
   const handleTourComplete = useCallback(async () => {
+    console.log('TOUR COMPLETE LLAMADO');
     setRunTour(false);
     if (config && session?.user?.id) {
       const updatedConfig = { ...config, tour_completed: true };

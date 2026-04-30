@@ -73,6 +73,7 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
             action === 'close' ||
             action === 'reset'
         ) {
+            console.log('CALLBACK FINAL:', { status, action, type });
             if (onComplete) onComplete();
         }
     };
