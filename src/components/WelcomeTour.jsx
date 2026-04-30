@@ -67,13 +67,10 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
             }
         }
 
-        if (
-            status === STATUS.FINISHED ||
-            status === STATUS.SKIPPED ||
-            action === 'close' ||
-            action === 'reset'
-        ) {
-            console.log('CALLBACK FINAL:', { status, action, type });
+        const isDone = status === STATUS.FINISHED || status === STATUS.SKIPPED;
+        const isClosed = type === 'tour:end' || (action === 'close' && status !== 'running');
+        if (isDone || isClosed) {
+            console.log('CALLBACK FINAL:', { status, action, type, isDone, isClosed });
             if (onComplete) onComplete();
         }
     };
