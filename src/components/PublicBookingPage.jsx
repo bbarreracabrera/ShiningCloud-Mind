@@ -179,7 +179,8 @@ export default function PublicBookingPage({ clinicId }) {
                     }
                 });
                 if (payData?.init_point) {
-                    window.location.href = payData.init_point;
+                    window.open(payData.init_point, '_blank', 'noopener,noreferrer');
+                    setStep(4);
                     return;
                 }
                 // Si falla el pago, continuar con flujo normal
