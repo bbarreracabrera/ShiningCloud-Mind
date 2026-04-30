@@ -1,7 +1,7 @@
 import React from 'react';
-import Joyride, { STATUS, EVENTS, ACTIONS } from 'react-joyride';
+import { Joyride, STATUS, EVENTS, ACTIONS } from 'react-joyride';
 
-export default function WelcomeTour({ run, onComplete, setActiveTab }) {
+export default function WelcomeTour({ run, onComplete, setActiveTab, setMobileMenuOpen }) {
     const steps = [
         {
             target: 'body',
@@ -14,37 +14,37 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
             target: '[data-tour="dashboard"]',
             title: 'Dashboard',
             content: 'Aquí ves tus ingresos, egresos del mes, las sesiones de hoy y notas pendientes por escribir.',
-            placement: 'right',
+            placement: 'auto',
         },
         {
             target: '[data-tour="agenda"]',
             title: 'Agenda Semanal',
             content: 'Visualiza tus citas en formato calendario. Haz clic en cualquier hora para agendar una nueva sesión.',
-            placement: 'right',
+            placement: 'auto',
         },
         {
             target: '[data-tour="pacientes"]',
             title: 'Fichas Clínicas',
             content: 'Crea pacientes, escribe evoluciones, sube imágenes, mantén anamnesis y consentimientos firmados.',
-            placement: 'right',
+            placement: 'auto',
         },
         {
             target: '[data-tour="informes"]',
             title: 'Informes',
             content: 'Genera informes clínicos en PDF — derivaciones, certificados, informes psicológicos. Quedan firmados con tus datos.',
-            placement: 'right',
+            placement: 'auto',
         },
         {
             target: '[data-tour="finanzas"]',
             title: 'Pagos & Caja',
             content: 'Registra cobros, abonos y genera recibos PDF para tus pacientes. Lleva control de quien debe.',
-            placement: 'right',
+            placement: 'auto',
         },
         {
             target: '[data-tour="ajustes"]',
             title: 'Configuración',
             content: 'Conecta MercadoPago para recibir pagos online, configura tus horarios y obtén tu link de reservas público.',
-            placement: 'right',
+            placement: 'auto',
         },
         {
             target: 'body',
@@ -59,6 +59,14 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
 
         console.log('🎯 TOUR EVENT:', { type, action, status, lifecycle });
 
+        // Al iniciar el tour, abrir sidebar en móvil para que los targets sean visibles
+        if (type === EVENTS.TOUR_START && setMobileMenuOpen) {
+            if (window.innerWidth < 768) {
+                setMobileMenuOpen(true);
+            }
+        }
+
+        // Cambiar tab al avanzar/retroceder
         if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
             const nextIndex = index + (action === ACTIONS.PREV ? -1 : 1);
             const tabsByStep = {
@@ -79,6 +87,7 @@ export default function WelcomeTour({ run, onComplete, setActiveTab }) {
 
         if (isEnd) {
             console.log('🟢 TOUR TERMINA — llamando onComplete');
+            if (setMobileMenuOpen) setMobileMenuOpen(false);
             if (onComplete) onComplete();
         }
     };

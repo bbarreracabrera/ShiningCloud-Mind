@@ -405,7 +405,7 @@ export default function App() {
   return (
     <div className={`min-h-screen flex bg-pastel-pink text-soft-dark transition-all duration-500 font-sans`}>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <WelcomeTour run={runTour} onComplete={handleTourComplete} setActiveTab={setActiveTab} />
+      <WelcomeTour run={runTour} onComplete={handleTourComplete} setActiveTab={setActiveTab} setMobileMenuOpen={setMobileMenuOpen} />
 
       {showSubscriptionBanner && (
           <div className="fixed top-0 left-0 right-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between">
