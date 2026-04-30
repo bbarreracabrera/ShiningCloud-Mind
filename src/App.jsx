@@ -110,24 +110,16 @@ export default function App() {
   };
 
   useEffect(() => {
-    console.log('TOUR DEBUG:', {
-        sessionId: session?.user?.id,
-        showOnboarding,
-        configLoaded,
-        configName: config?.name,
-        configTourCompleted: config?.tour_completed,
-        runTour,
-        fullConfig: config
-    });
     if (!session?.user?.id) return;
-    if (!configLoaded) return;
     if (showOnboarding) return;
     if (runTour) return;
-    if (config.tour_completed) return;
+    if (!config?.name) return;
+    if (config?.name === 'Psicóloga Independiente') return;
+    if (config?.tour_completed === true) return;
 
-    const timer = setTimeout(() => setRunTour(true), 1500);
+    const timer = setTimeout(() => setRunTour(true), 2500);
     return () => clearTimeout(timer);
-  }, [session?.user?.id, configLoaded, showOnboarding, config?.tour_completed]);
+  }, [session?.user?.id, showOnboarding, config?.name, config?.tour_completed, runTour]);
 
   const notify = (m) => toast.success(m, { 
       style: { borderRadius: '12px', background: '#fadadd', color: '#4a4a4b', border: '1px solid rgba(250,218,221,0.5)', fontWeight: 'bold', fontSize: '13px' },
@@ -225,16 +217,14 @@ export default function App() {
   }, [session]);
 
   const handleTourComplete = useCallback(async () => {
-    console.log('TOUR COMPLETE LLAMADO', { config, sessionId: session?.user?.id });
-    setRunTour(false);
     if (config && session?.user?.id) {
       const updatedConfig = { ...config, tour_completed: true };
-      setConfigLocal(updatedConfig);
-      const ok = await saveToSupabase('settings', session.user.id, updatedConfig);
-      console.log('TOUR COMPLETE GUARDADO EN DB:', ok, updatedConfig);
-    } else {
-      console.warn('TOUR COMPLETE: no se pudo guardar — falta config o session');
+      const success = await saveToSupabase('settings', session.user.id, updatedConfig);
+      if (success) {
+        setConfigLocal(updatedConfig);
+      }
     }
+    setRunTour(false);
   }, [config, session, saveToSupabase]);
 
   const getPatient = useCallback((id) => {

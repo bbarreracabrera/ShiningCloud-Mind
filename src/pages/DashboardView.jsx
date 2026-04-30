@@ -37,7 +37,12 @@ export default function DashboardView({
                         <Calendar size={14} className="text-sage-green"/>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{formattedDate}</p>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-soft-dark tracking-tighter">Hola, {config?.name?.split(' ')[0] || 'Doc'} 👋</h1>
+                    {(() => {
+                            const firstName = (config?.name || 'Psicóloga')
+                                .replace(/^(Ps\.?|Dr\.?|Dra\.?)\s*/i, '')
+                                .split(' ')[0];
+                            return <h1 className="text-4xl md:text-5xl font-bold text-soft-dark tracking-tighter">Hola, {firstName} 👋</h1>;
+                        })()}
                 </div>
                 <div className="flex gap-3">
                     <button onClick={()=>setModal('appt')} className="px-5 py-3 rounded-xl border border-pastel-pink bg-white text-soft-dark text-[11px] font-bold uppercase tracking-widest hover:bg-warm-white transition-all flex items-center gap-2 shadow-sm">
