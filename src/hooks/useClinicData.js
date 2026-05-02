@@ -59,7 +59,12 @@ export const useClinicData = ({
                         let configToSet = settingsData.data;
                         if (!configToSet.email && session?.user?.email) {
                             configToSet = { ...configToSet, email: session.user.email };
-                            supabase.from('settings').update({ data: configToSet }).eq('user_id', uid);
+                            supabase.from('settings')
+                                .update({ data: configToSet })
+                                .eq('user_id', uid)
+                                .then(({ error }) => {
+                                    if (error) console.error('Error auto-update email:', error);
+                                });
                         }
                         setConfigLocal(configToSet);
                     }

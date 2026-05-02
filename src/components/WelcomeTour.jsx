@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Joyride, STATUS, EVENTS, ACTIONS } from 'react-joyride';
 
 export default function WelcomeTour({ run, onComplete, setActiveTab, setMobileMenuOpen }) {
+    const completedRef = useRef(false);
+
+    useEffect(() => {
+        if (run) {
+            completedRef.current = false;
+        }
+    }, [run]);
     const steps = [
         {
             target: 'body',
@@ -82,11 +89,11 @@ export default function WelcomeTour({ run, onComplete, setActiveTab, setMobileMe
             status === STATUS.FINISHED ||
             status === STATUS.SKIPPED ||
             type === EVENTS.TOUR_END ||
-            action === ACTIONS.CLOSE ||
-            action === ACTIONS.RESET;
+            action === ACTIONS.CLOSE;
 
-        if (isEnd) {
-            console.log('🟢 TOUR TERMINA — llamando onComplete');
+        if (isEnd && !completedRef.current) {
+            completedRef.current = true;
+            console.log('🟢 TOUR TERMINA — llamando onComplete (1 vez)');
             if (setMobileMenuOpen) setMobileMenuOpen(false);
             if (onComplete) onComplete();
         }

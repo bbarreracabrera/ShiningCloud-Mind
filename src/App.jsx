@@ -219,7 +219,6 @@ export default function App() {
 
   const handleTourComplete = useCallback(async () => {
     console.log('🟢 handleTourComplete LLAMADO');
-    setRunTour(false);
 
     if (config && session?.user?.id) {
       const updatedConfig = { ...config, tour_completed: true };
@@ -232,6 +231,8 @@ export default function App() {
         console.error('Error guardando tour:', e);
       }
     }
+
+    setRunTour(false);
   }, [config, session, saveToSupabase]);
 
   const getPatient = useCallback((id) => {
