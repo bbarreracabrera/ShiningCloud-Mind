@@ -113,13 +113,21 @@ export default function App() {
     if (!session?.user?.id) return;
     if (showOnboarding) return;
     if (runTour) return;
+    if (!configLoaded) return;
     if (!config?.name) return;
     if (config?.name === 'Psicóloga Independiente') return;
     if (config?.tour_completed === true) return;
 
-    const timer = setTimeout(() => setRunTour(true), 2500);
+    const timer = setTimeout(async () => {
+      if (config && session?.user?.id) {
+        const updatedConfig = { ...config, tour_completed: true };
+        setConfigLocal(updatedConfig);
+        await saveToSupabase('settings', session.user.id, updatedConfig);
+      }
+      setRunTour(true);
+    }, 2500);
     return () => clearTimeout(timer);
-  }, [session?.user?.id, showOnboarding, config?.name, config?.tour_completed, runTour]);
+  }, [session?.user?.id, showOnboarding, configLoaded, config?.name, config?.tour_completed, runTour]);
 
   const notify = (m) => toast.success(m, { 
       style: { borderRadius: '12px', background: '#fadadd', color: '#4a4a4b', border: '1px solid rgba(250,218,221,0.5)', fontWeight: 'bold', fontSize: '13px' },
@@ -217,23 +225,9 @@ export default function App() {
       }
   }, [session]);
 
-  const handleTourComplete = useCallback(async () => {
-    console.log('🟢 handleTourComplete LLAMADO');
-
-    if (config && session?.user?.id) {
-      const updatedConfig = { ...config, tour_completed: true };
-      setConfigLocal(updatedConfig);
-
-      try {
-        const success = await saveToSupabase('settings', session.user.id, updatedConfig);
-        console.log('🟢 Guardado tour:', success);
-      } catch (e) {
-        console.error('Error guardando tour:', e);
-      }
-    }
-
+  const handleTourComplete = useCallback(() => {
     setRunTour(false);
-  }, [config, session, saveToSupabase]);
+  }, []);
 
   const getPatient = useCallback((id) => {
       const base = { 
